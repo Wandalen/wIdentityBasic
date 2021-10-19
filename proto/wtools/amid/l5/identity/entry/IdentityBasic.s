@@ -4,7 +4,7 @@
 'use strict';
 
 /**
- * Tool to menage profiles for different utilities.
+ * Tool to manage profiles for different utilities.
  * @module Tools/mid/IdentityBasic
  */
 
