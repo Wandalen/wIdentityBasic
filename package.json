@@ -27,10 +27,10 @@
     "url": "https://github.com/Wandalen/wIdentityBasic/issues"
   },
   "dependencies": {
-    "wcensorbasic": ""
+    "wcensorbasic": "gamma"
   },
   "devDependencies": {
-    "wTesting": "",
+    "wTesting": "gamma",
     "eslint": "7.32.0"
   },
   "keywords": [
