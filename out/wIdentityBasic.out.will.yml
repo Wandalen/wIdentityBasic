@@ -3,14 +3,14 @@ root:
   - wIdentityBasic.out
 consistency:
   ../will.yml: &ref_0
-    hash: bd8b54ff9d5ec2ac443fb30f7e38e9d4
+    hash: ca1a54479a28fb2ba4f06e3a2fa1133a
     size: 6437
 module:
   wIdentityBasic.out:
     about:
       name: wIdentityBasic
       org: noorg
-      description: Tool to menage profiles for different utilities.
+      description: Tool to manage profiles for different utilities.
       enabled: 1
       version: 0.3.0
       license: MIT
@@ -781,7 +781,7 @@ module:
     about:
       name: wIdentityBasic
       org: noorg
-      description: Tool to menage profiles for different utilities.
+      description: Tool to manage profiles for different utilities.
       enabled: 1
       version: 0.3.0
       license: MIT
@@ -1445,5 +1445,5 @@ module:
           - 'build::npm'
     consistency:
       ../will.yml:
-        hash: bd8b54ff9d5ec2ac443fb30f7e38e9d4
+        hash: ca1a54479a28fb2ba4f06e3a2fa1133a
         size: 6437
