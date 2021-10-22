@@ -1,6 +1,6 @@
 about:
   name: wIdentityBasic
-  description: Tool to menage profiles for different utilities.
+  description: Tool to manage profiles for different utilities.
   version: 0.3.0
   enabled: 1
   license: MIT
