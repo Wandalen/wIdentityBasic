@@ -3,8 +3,8 @@ root:
   - wIdentityBasic.out
 consistency:
   ../will.yml: &ref_0
-    hash: ca1a54479a28fb2ba4f06e3a2fa1133a
-    size: 6437
+    hash: 212fb3472617eb363fdf3a10bab91f44
+    size: 6296
 module:
   wIdentityBasic.out:
     about:
@@ -362,9 +362,6 @@ module:
           content: npm
         inherit:
           - module.export
-      npm.publish:
-        opts:
-          shell: npm publish
       npm.generate.debug.raw:
         opts:
           entryPath: 'path::entry.out.*=1'
@@ -700,12 +697,6 @@ module:
           - 'step::doc.export'
         criterion:
           content: doc
-          export: 1
-      npm.export:
-        steps:
-          - 'step::npm.publish'
-        criterion:
-          content: npm
           export: 1
       export:
         steps:
@@ -1043,9 +1034,6 @@ module:
           content: npm
         inherit:
           - module.export
-      npm.publish:
-        opts:
-          shell: npm publish
       npm.generate.debug.raw:
         opts:
           entryPath: 'path::entry.out.*=1'
@@ -1382,12 +1370,6 @@ module:
         criterion:
           content: doc
           export: 1
-      npm.export:
-        steps:
-          - 'step::npm.publish'
-        criterion:
-          content: npm
-          export: 1
       export:
         steps:
           - 'build::proto.export'
@@ -1445,5 +1427,5 @@ module:
           - 'build::npm'
     consistency:
       ../will.yml:
-        hash: ca1a54479a28fb2ba4f06e3a2fa1133a
-        size: 6437
+        hash: 212fb3472617eb363fdf3a10bab91f44
+        size: 6296
