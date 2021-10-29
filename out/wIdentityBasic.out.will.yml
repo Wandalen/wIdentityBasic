@@ -160,9 +160,12 @@ module:
           - ../proto/wtools/amid/l5/identity/include
           - ../proto/wtools/amid/l5/identity/include/Basic.s
           - ../proto/wtools/amid/l5/identity/include/Mid.s
+          - ../proto/wtools/amid/l5/identity/l0
+          - ../proto/wtools/amid/l5/identity/l0/Namespace.s
           - ../proto/wtools/amid/l5/identity/l1
-          - ../proto/wtools/amid/l5/identity/l1/Namespace.s
+          - ../proto/wtools/amid/l5/identity/l1/Identity.s
           - ../proto/wtools/amid/l5/identity.test
+          - ../proto/wtools/amid/l5/identity.test/Censor.test.s
           - ../proto/wtools/amid/l5/identity.test/Identity.test.s
     submodule:
       wcensorbasic:
