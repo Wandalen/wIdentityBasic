@@ -20,7 +20,7 @@ function identityCopy( o )
   _.assert( _.str.defined( o.identityDstName ), 'Expects defined option {-o.identityDstName-}.' );
   _.assert( !_.path.isGlob( o.identityDstName ), 'Expects no globs' );
 
-  self._configNameMapFromDefaults( o );
+  _.censor._configNameMapFromDefaults( o );
 
   const o2 = _.mapOnly_( null, o, self.identityGet.defaults );
   o2.selector = o.identitySrcName;
@@ -59,14 +59,14 @@ function identityGet( o )
   o = { profileDir : arguments[ 0 ] };
   _.routine.options( identityGet, o );
 
-  self._configNameMapFromDefaults( o );
+  _.censor._configNameMapFromDefaults( o );
 
   if( o.selector === null )
   o.selector = '';
   _.assert( _.str.is( o.selector ) );
   o.selector = `identity/${ o.selector }`;
 
-  return self.configGet( o );
+  return _.censor.configGet( o );
 }
 
 identityGet.defaults =
@@ -93,10 +93,10 @@ function identitySet( o )
     throw _.err( `Identity ${ o.selector } does not exists.` );
   }
 
-  const o3 = _.mapOnly_( null, o, self.configRead.defaults );
-  const config = self.configRead( o3 );
+  const o3 = _.mapOnly_( null, o, _.censor.configRead.defaults );
+  const config = _.censor.configRead( o3 );
 
-  const o4 = _.mapOnly_( null, o, self.configSet.defaults );
+  const o4 = _.mapOnly_( null, o, _.censor.configSet.defaults );
   _.each( o4.set, ( value, key ) =>
   {
     value = _.resolver.resolve
@@ -110,7 +110,7 @@ function identitySet( o )
     delete o4.set[ key ];
   });
 
-  return self.configSet( o4 );
+  return _.censor.configSet( o4 );
 }
 
 identitySet.defaults =
@@ -143,7 +143,7 @@ function identityNew( o )
     _.assert( _.str.defined( o.identity.login ), 'Expects field {-o.identity.login-}.' );
   }
 
-  self._configNameMapFromDefaults( o );
+  _.censor._configNameMapFromDefaults( o );
 
   const o2 = _.mapOnly_( null, o, self.identityGet.defaults );
   o2.selector = o.identity.name;
@@ -195,7 +195,7 @@ function identityFrom( o )
     _.assert( !_.path.isGlob( o.selector ) );
   }
 
-  self._configNameMapFromDefaults( o );
+  _.censor._configNameMapFromDefaults( o );
 
   const identityMakerMap =
   {
@@ -315,7 +315,7 @@ function identityDel( o )
   o = { profileDir : arguments[ 0 ] };
   _.routine.options( identityDel, o );
 
-  self._configNameMapFromDefaults( o );
+  _.censor._configNameMapFromDefaults( o );
 
   if( o.selector === null )
   o.selector = '';
@@ -340,7 +340,7 @@ function identityDel( o )
 
   o.selector = `identity/${ o.selector }`;
 
-  self.configDel( o );
+  _.censor.configDel( o );
 
   /* */
 
@@ -369,7 +369,7 @@ function identityUse( o )
   _.assert( _.set.hasKey( self.IdentityTypes, o.type ) || o.type === 'general' );
   _.assert( !_.path.isGlob( o.selector ) );
 
-  self._configNameMapFromDefaults( o );
+  _.censor._configNameMapFromDefaults( o );
 
   const o2 = _.mapOnly_( null, o, self.identityGet.defaults );
   const identity = self.identityGet( o2 );
@@ -393,7 +393,7 @@ function identityUse( o )
     self.identityUpdate( o3 );
   }
 
-  self.profileHookCallWithIdentity( _.mapOnly_( null, o, _.censor.profileHookCallWithIdentity.defaults ) );
+  _.censor.profileHookCallWithIdentity( _.mapOnly_( null, o, _.censor.profileHookCallWithIdentity.defaults ) );
 }
 
 identityUse.defaults =
@@ -513,7 +513,7 @@ function identityResolveDefaultMaybe( o )
 
   _.assert( _.set.hasKey( self.IdentityTypes, o.type ) || o.type === 'general' || o.type === null );
 
-  self._configNameMapFromDefaults( o );
+  _.censor._configNameMapFromDefaults( o );
 
   const o2 = _.mapOnly_( null, o, self.identityGet.defaults );
   o2.selector = '';
