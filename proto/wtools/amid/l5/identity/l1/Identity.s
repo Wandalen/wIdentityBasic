@@ -384,7 +384,7 @@ function identityUse( o )
   _.assert( arguments.length === 1, 'Expects exactly one argument' );
   _.routine.options( identityUse, o );
 
-  _.assert( _.set.hasKey( self.IdentityTypes, o.type ) || o.type === 'general' );
+  _.assert( _.set.hasKey( self.IdentityTypes, o.type ) || o.type === 'super' );
   _.assert( !_.path.isGlob( o.selector ) );
 
   _.censor._configNameMapFromDefaults( o );
@@ -394,24 +394,65 @@ function identityUse( o )
   _.assert( _.map.is( identity ), `Selected no identity : ${ o.identitySrcName }. Please, improve selector.` );
   _.assert
   (
-    ( 'login' in identity || `${ o.type }.login` in identity ) && 'type' in identity,
+    ( 'login' in identity || `${ o.type }.login` in identity || 'identities' in identity ) && 'type' in identity,
     `Selected ${ _.props.keys( identity ).length } identity(s). Please, improve selector.`
   );
-  _.assert( identity.type === 'general' || identity.type === o.type || o.type === null );
-
-  o.type = o.type || identity.type;
+  _.assert( identity.type === 'super' || identity.type === o.type );
 
   /* */
 
-  let o3 = _.mapOnly_( null, o, self.identityUpdate.defaults );
-  self.identityUpdate( _.map.extend( o3, { dst : `_previous.${ o.type }`, deleting : 1, throwing : 0, force : 1 } ) );
-  if( o.type === 'ssh' )
+  const o3 = _.mapOnly_( null, o, self.identityUpdate.defaults );
+  if( identity.type === 'super' )
   {
-    delete o3.dst;
-    self.identityUpdate( o3 );
+    if( o.type === 'super' )
+    {
+      const o4 = _.mapOnly_( null, o, self.identityGet.defaults );
+      for( let key in identity.identities )
+      if( identity.identities[ key ] )
+      {
+        o4.selector = key;
+        const identity2 = _.identity.identityGet( o4 );
+        identityUpdateByType( o.type );
+        o.identity = identity2;
+        _.censor.profileHookCallWithIdentity( _.mapOnly_( null, o, _.censor.profileHookCallWithIdentity.defaults ) );
+      }
+    }
+    else
+    {
+      const o4 = _.mapOnly_( null, o, self.identityGet.defaults );
+      for( let key in identity.identities )
+      if( identity.identities[ key ] )
+      {
+        o4.selector = key;
+        const identity2 = _.identity.identityGet( o4 );
+        if( identity2.type === o.type )
+        {
+          identityUpdateByType( o.type );
+          o.identity = identity2;
+          _.censor.profileHookCallWithIdentity( _.mapOnly_( null, o, _.censor.profileHookCallWithIdentity.defaults ) );
+          break;
+        }
+      }
+    }
+  }
+  else
+  {
+    identityUpdateByType( o.type );
+    o.identity = identity;
+    _.censor.profileHookCallWithIdentity( _.mapOnly_( null, o, _.censor.profileHookCallWithIdentity.defaults ) );
   }
 
-  _.censor.profileHookCallWithIdentity( _.mapOnly_( null, o, _.censor.profileHookCallWithIdentity.defaults ) );
+  /* */
+
+  function identityUpdateByType( type )
+  {
+    self.identityUpdate( _.map.extend( o3, { dst : `_previous.${ type }`, deleting : 1, throwing : 0, force : 1 } ) );
+    if( type === 'ssh' )
+    {
+      delete o3.dst;
+      self.identityUpdate( o3 );
+    }
+  }
 }
 
 identityUse.defaults =
