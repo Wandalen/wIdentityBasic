@@ -346,13 +346,13 @@ function identityDel( o )
   if( identities )
   if( 'type' in identities )
   {
-    if( identities.type === 'ssh' || identities.type === 'general' )
+    if( identities.type === 'ssh' )
     deleteLocalSshKeys( identities );
   }
   else
   {
     for( let identityKey in identities )
-    if( identities[ identityKey ].type === 'ssh' || identities[ identityKey ].type === 'general' )
+    if( identities[ identityKey ].type === 'ssh' )
     deleteLocalSshKeys( identities[ identityKey ] );
   }
 
