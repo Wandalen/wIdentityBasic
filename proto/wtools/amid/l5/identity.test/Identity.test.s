@@ -42,22 +42,22 @@ function identityCopy( test )
   /* */
 
   test.case = 'copy identity from existed config, single identity, selector matches identity';
-  var identity = { name : 'user', login : 'userLogin' };
+  var identity = { name : 'user', login : 'userLogin', type : 'git' };
   _.identity.identityNew({ profileDir, identity });
   var config = _.censor.configRead({ profileDir });
-  test.identical( config.identity, { user : { login : 'userLogin', type : 'general' } } );
+  test.identical( config.identity, { user : { login : 'userLogin', type : 'git' } } );
   var got = _.identity.identityCopy({ profileDir, identitySrcName : 'user', identityDstName : 'user3' });
   test.identical( got, undefined );
   var config = _.censor.configRead({ profileDir });
   test.identical( _.props.keys( config.identity ), [ 'user', 'user3' ] );
-  test.identical( config.identity.user, { login : 'userLogin', type : 'general' } );
+  test.identical( config.identity.user, { login : 'userLogin', type : 'git' } );
   test.identical( config.identity.user, config.identity.user3 );
   _.censor.profileDel( profileDir );
 
   test.case = 'copy identity from existed config, several identities, selector matches identity';
-  var identity = { name : 'user', login : 'userLogin' };
+  var identity = { name : 'user', login : 'userLogin', type : 'git' };
   _.identity.identityNew({ profileDir, identity });
-  var identity = { name : 'user2', login : 'userLogin2' };
+  var identity = { name : 'user2', login : 'userLogin2', type : 'git' };
   _.identity.identityNew({ profileDir, identity });
   var config = _.censor.configRead({ profileDir });
   test.identical( _.props.keys( config.identity ), [ 'user', 'user2' ] );
@@ -65,17 +65,17 @@ function identityCopy( test )
   test.identical( got, undefined );
   var config = _.censor.configRead({ profileDir });
   test.identical( _.props.keys( config.identity ), [ 'user', 'user2', 'user3' ] );
-  test.identical( config.identity.user, { login : 'userLogin', type : 'general' } );
-  test.identical( config.identity.user2, { login : 'userLogin2', type : 'general' } );
+  test.identical( config.identity.user, { login : 'userLogin', type : 'git' } );
+  test.identical( config.identity.user2, { login : 'userLogin2', type : 'git' } );
   test.identical( config.identity.user, config.identity.user3 );
   _.censor.profileDel( profileDir );
 
   /* */
 
   test.case = 'config exists, identity exists, selector matches identity, dst identity exists, force - 0';
-  var identity = { name : 'user', login : 'userLogin' };
+  var identity = { name : 'user', login : 'userLogin', type : 'git' };
   _.identity.identityNew({ profileDir, identity });
-  var identity = { name : 'user2', login : 'userLogin2' };
+  var identity = { name : 'user2', login : 'userLogin2', type : 'git' };
   _.identity.identityNew({ profileDir, identity });
   var config = _.censor.configRead({ profileDir });
   test.identical( _.props.keys( config.identity ), [ 'user', 'user2' ] );
@@ -112,8 +112,8 @@ function identityCopy( test )
   test.shouldThrowErrorSync( () => _.identity.identityCopy( o ) );
 
   test.case = 'o.identitySrcName is string with glob, get several identities';
-  _.identity.identityNew({ profileDir, identity : { name : 'user', login : 'userLogin' } });
-  _.identity.identityNew({ profileDir, identity : { name : 'user2', login : 'userLogin2' } });
+  _.identity.identityNew({ profileDir, identity : { name : 'user', login : 'userLogin', type : 'git' } });
+  _.identity.identityNew({ profileDir, identity : { name : 'user2', login : 'userLogin2', type : 'git' } });
   var o = { profileDir, identitySrcName : 'user*', identityDstName : 'user3' };
   test.shouldThrowErrorSync( () => _.identity.identityCopy( o ) );
   _.censor.profileDel( profileDir );
@@ -135,15 +135,15 @@ function identityCopy( test )
   _.censor.profileDel( profileDir );
 
   test.case = 'config exists, identity exists, selector matches not identity';
-  var identity = { name : 'user', login : 'userLogin' };
+  var identity = { name : 'user', login : 'userLogin', type : 'git' };
   _.identity.identityNew({ profileDir, identity });
   test.shouldThrowErrorSync( () => _.identity.identityCopy({ profileDir, identitySrcName : 'user2', identityDstName : 'user3' }) );
   _.censor.profileDel( profileDir );
 
   test.case = 'config exists, identity exists, selector matches identity, dst identity exists, force - 0';
-  var identity = { name : 'user', login : 'userLogin' };
+  var identity = { name : 'user', login : 'userLogin', type : 'git' };
   _.identity.identityNew({ profileDir, identity });
-  var identity = { name : 'user2', login : 'userLogin2' };
+  var identity = { name : 'user2', login : 'userLogin2', type : 'git' };
   _.identity.identityNew({ profileDir, identity });
   test.shouldThrowErrorSync( () => _.identity.identityCopy({ profileDir, identitySrcName : 'user', identityDstName : 'user2' }) );
   _.censor.profileDel( profileDir );
@@ -184,26 +184,26 @@ function identityGet( test )
     _.censor.profileDel( profileDir );
 
     test.case = 'get identities from existed config, single identity';
-    var identity = { name : 'user', login : 'userLogin' };
+    var identity = { name : 'user', login : 'userLogin', type : 'git' };
     _.identity.identityNew({ profileDir, identity });
     var config = _.censor.configRead({ profileDir });
     test.true( _.map.is( config.identity ) );
     var got = _.identity.identityGet( _.entity.make( arg ) );
-    test.identical( got, { user : { login : 'userLogin', type : 'general' } } );
+    test.identical( got, { user : { login : 'userLogin', type : 'git' } } );
     _.censor.profileDel( profileDir );
 
     test.case = 'get identities from existed config, several identities';
-    var identity = { name : 'user', login : 'userLogin' };
+    var identity = { name : 'user', login : 'userLogin', type : 'git' };
     _.identity.identityNew({ profileDir, identity });
-    var identity = { name : 'user2', login : 'userLogin2' };
+    var identity = { name : 'user2', login : 'userLogin2', type : 'git' };
     _.identity.identityNew({ profileDir, identity });
     var config = _.censor.configRead({ profileDir });
     test.true( _.map.is( config.identity ) );
     var got = _.identity.identityGet( _.entity.make( arg ) );
     var exp =
     {
-      user : { login : 'userLogin', type : 'general' },
-      user2 : { login : 'userLogin2', type : 'general' }
+      user : { login : 'userLogin', type : 'git' },
+      user2 : { login : 'userLogin2', type : 'git' }
     };
     test.identical( got, exp );
     _.censor.profileDel( profileDir );
@@ -231,16 +231,16 @@ function identityGet( test )
   _.censor.profileDel( profileDir );
 
   test.case = 'get identity from existed config, single identity, selector matches identity';
-  var identity = { name : 'user', login : 'userLogin' };
+  var identity = { name : 'user', login : 'userLogin', type : 'git' };
   _.identity.identityNew({ profileDir, identity });
   var config = _.censor.configRead({ profileDir });
   test.true( _.map.is( config.identity ) );
   var got = _.identity.identityGet({ profileDir, selector : 'user' });
-  test.identical( got, { login : 'userLogin', type : 'general' } );
+  test.identical( got, { login : 'userLogin', type : 'git' } );
   _.censor.profileDel( profileDir );
 
   test.case = 'get identity from existed config, single identity, selector matches not identity';
-  var identity = { name : 'user', login : 'userLogin' };
+  var identity = { name : 'user', login : 'userLogin', type : 'git' };
   _.identity.identityNew({ profileDir, identity });
   var config = _.censor.configRead({ profileDir });
   test.true( _.map.is( config.identity ) );
@@ -249,20 +249,20 @@ function identityGet( test )
   _.censor.profileDel( profileDir );
 
   test.case = 'get identity from existed config, several identities, selector matches identity';
-  var identity = { name : 'user', login : 'userLogin' };
+  var identity = { name : 'user', login : 'userLogin', type : 'git' };
   _.identity.identityNew({ profileDir, identity });
-  var identity = { name : 'user2', login : 'userLogin2' };
+  var identity = { name : 'user2', login : 'userLogin2', type : 'git' };
   _.identity.identityNew({ profileDir, identity });
   var config = _.censor.configRead({ profileDir });
   test.true( _.map.is( config.identity ) );
   var got = _.identity.identityGet({ profileDir, selector : 'user2' });
-  test.identical( got, { login : 'userLogin2', type : 'general' } );
+  test.identical( got, { login : 'userLogin2', type : 'git' } );
   _.censor.profileDel( profileDir );
 
   test.case = 'get identity from existed config, several identities, selector matches not identity';
-  var identity = { name : 'user', login : 'userLogin' };
+  var identity = { name : 'user', login : 'userLogin', type : 'git' };
   _.identity.identityNew({ profileDir, identity });
-  var identity = { name : 'user2', login : 'userLogin2' };
+  var identity = { name : 'user2', login : 'userLogin2', type : 'git' };
   _.identity.identityNew({ profileDir, identity });
   var config = _.censor.configRead({ profileDir });
   test.true( _.map.is( config.identity ) );
@@ -271,25 +271,25 @@ function identityGet( test )
   _.censor.profileDel( profileDir );
 
   test.case = 'get identity from existed config, several identities, selector with glob, matches identities';
-  var identity = { name : 'user', login : 'userLogin' };
+  var identity = { name : 'user', login : 'userLogin', type : 'git' };
   _.identity.identityNew({ profileDir, identity });
-  var identity = { name : 'user2', login : 'userLogin2' };
+  var identity = { name : 'user2', login : 'userLogin2', type : 'git' };
   _.identity.identityNew({ profileDir, identity });
   var config = _.censor.configRead({ profileDir });
   test.true( _.map.is( config.identity ) );
   var got = _.identity.identityGet({ profileDir, selector : 'user*' });
   var exp =
   {
-    user : { login : 'userLogin', type : 'general' },
-    user2 : { login : 'userLogin2', type : 'general' }
+    user : { login : 'userLogin', type : 'git' },
+    user2 : { login : 'userLogin2', type : 'git' }
   };
   test.identical( got, exp );
   _.censor.profileDel( profileDir );
 
   test.case = 'get identity from existed config, several identities, selector with glob, matches not identities';
-  var identity = { name : 'user', login : 'userLogin' };
+  var identity = { name : 'user', login : 'userLogin', type : 'git' };
   _.identity.identityNew({ profileDir, identity });
-  var identity = { name : 'user2', login : 'userLogin2' };
+  var identity = { name : 'user2', login : 'userLogin2', type : 'git' };
   _.identity.identityNew({ profileDir, identity });
   var config = _.censor.configRead({ profileDir });
   test.true( _.map.is( config.identity ) );
@@ -371,21 +371,21 @@ function identitySet( test )
   /* */
 
   test.case = 'set no properties in identity in config that exists, single identity, selector matches identity';
-  var identity = { name : 'user', login : 'userLogin' };
+  var identity = { name : 'user', login : 'userLogin', type : 'git' };
   _.identity.identityNew({ profileDir, identity });
   var config = _.censor.configRead({ profileDir });
-  test.identical( config.identity, { user : { login : 'userLogin', type : 'general' } } );
+  test.identical( config.identity, { user : { login : 'userLogin', type : 'git' } } );
   var got = _.identity.identitySet({ profileDir, selector : 'user', set : {} });
   test.identical( got, undefined );
   var config = _.censor.configRead({ profileDir });
-  test.identical( config.identity, { user : { login : 'userLogin', type : 'general' } } );
+  test.identical( config.identity, { user : { login : 'userLogin', type : 'git' } } );
   _.censor.profileDel( profileDir );
 
   test.case = 'set properties in identity in config that exists, single identity, selector matches identity, replace';
-  var identity = { name : 'user', login : 'userLogin' };
+  var identity = { name : 'user', login : 'userLogin', type : 'npm' };
   _.identity.identityNew({ profileDir, identity });
   var config = _.censor.configRead({ profileDir });
-  test.identical( config.identity, { user : { login : 'userLogin', type : 'general' } } );
+  test.identical( config.identity, { user : { login : 'userLogin', type : 'npm' } } );
   var got = _.identity.identitySet({ profileDir, selector : 'user', set : { type : 'git' } });
   test.identical( got, undefined );
   var config = _.censor.configRead({ profileDir });
@@ -393,46 +393,46 @@ function identitySet( test )
   _.censor.profileDel( profileDir );
 
   test.case = 'set properties in identity in config that exists, single identity, selector matches identity, extend';
-  var identity = { name : 'user', login : 'userLogin' };
+  var identity = { name : 'user', login : 'userLogin', type : 'git' };
   _.identity.identityNew({ profileDir, identity });
   var config = _.censor.configRead({ profileDir });
-  test.identical( config.identity, { user : { login : 'userLogin', type : 'general' } } );
+  test.identical( config.identity, { user : { login : 'userLogin', type : 'git' } } );
   var got = _.identity.identitySet({ profileDir, selector : 'user', set : { email : 'user@domain.com' } });
   test.identical( got, undefined );
   var config = _.censor.configRead({ profileDir });
-  test.identical( config.identity, { user : { login : 'userLogin', type : 'general', email : 'user@domain.com' } } );
+  test.identical( config.identity, { user : { login : 'userLogin', type : 'git', email : 'user@domain.com' } } );
   _.censor.profileDel( profileDir );
 
   /* */
 
   test.case = 'set no properties in identity in config that exists, single identity, selector matches not identity, force - 1';
-  var identity = { name : 'user', login : 'userLogin' };
+  var identity = { name : 'user', login : 'userLogin', type : 'git' };
   _.identity.identityNew({ profileDir, identity });
   var config = _.censor.configRead({ profileDir });
-  test.identical( config.identity, { user : { login : 'userLogin', type : 'general' } } );
+  test.identical( config.identity, { user : { login : 'userLogin', type : 'git' } } );
   var got = _.identity.identitySet({ profileDir, selector : 'user2', set : {}, force : 1 });
   test.identical( got, undefined );
   var config = _.censor.configRead({ profileDir });
-  test.identical( config.identity, { user : { login : 'userLogin', type : 'general' } } );
+  test.identical( config.identity, { user : { login : 'userLogin', type : 'git' } } );
   _.censor.profileDel( profileDir );
 
   test.case = 'set properties in identity in config that exists, single identity, selector matches not identity, force - 1';
-  var identity = { name : 'user', login : 'userLogin' };
+  var identity = { name : 'user', login : 'userLogin', type : 'git' };
   _.identity.identityNew({ profileDir, identity });
   var config = _.censor.configRead({ profileDir });
-  test.identical( config.identity, { user : { login : 'userLogin', type : 'general' } } );
+  test.identical( config.identity, { user : { login : 'userLogin', type : 'git' } } );
   var got = _.identity.identitySet({ profileDir, selector : 'user2', set : { login : 'userLogin2' }, force : 1 });
   test.identical( got, undefined );
   var config = _.censor.configRead({ profileDir });
-  test.identical( config.identity, { user : { login : 'userLogin', type : 'general' }, user2 : { login : 'userLogin2' } } );
+  test.identical( config.identity, { user : { login : 'userLogin', type : 'git' }, user2 : { login : 'userLogin2' } } );
   _.censor.profileDel( profileDir );
 
   /* */
 
   test.case = 'set no properties in identity in config that exists, several identities, selector with glob, matches identities';
-  var identity = { name : 'user', login : 'userLogin' };
+  var identity = { name : 'user', login : 'userLogin', type : 'git' };
   _.identity.identityNew({ profileDir, identity });
-  var identity = { name : 'user2', login : 'userLogin2' };
+  var identity = { name : 'user2', login : 'userLogin2', type : 'git' };
   _.identity.identityNew({ profileDir, identity });
   var config = _.censor.configRead({ profileDir });
   test.true( _.map.is( config.identity ) );
@@ -441,16 +441,16 @@ function identitySet( test )
   var config = _.censor.configRead({ profileDir });
   var exp =
   {
-    user : { login : 'userLogin', type : 'general' },
-    user2 : { login : 'userLogin2', type : 'general' }
+    user : { login : 'userLogin', type : 'git' },
+    user2 : { login : 'userLogin2', type : 'git' }
   };
   test.identical( config.identity, exp );
   _.censor.profileDel( profileDir );
 
   test.case = 'set properties in identity in config that exists, several identities, selector with glob, matches identities';
-  var identity = { name : 'user', login : 'userLogin' };
+  var identity = { name : 'user', login : 'userLogin', type : 'git' };
   _.identity.identityNew({ profileDir, identity });
-  var identity = { name : 'user2', login : 'userLogin2' };
+  var identity = { name : 'user2', login : 'userLogin2', type : 'git' };
   _.identity.identityNew({ profileDir, identity });
   var config = _.censor.configRead({ profileDir });
   test.true( _.map.is( config.identity ) );
@@ -459,8 +459,8 @@ function identitySet( test )
   var config = _.censor.configRead({ profileDir });
   var exp =
   {
-    'user' : { login : 'userLogin3', type : 'general' },
-    'user2' : { login : 'userLogin3', type : 'general' },
+    'user' : { login : 'userLogin3', type : 'git' },
+    'user2' : { login : 'userLogin3', type : 'git' },
   };
   test.identical( config.identity, exp );
   _.censor.profileDel( profileDir );
@@ -531,39 +531,39 @@ function identityNew( test )
 {
   const profileDir = `test-${ _.intRandom( 1000000 ) }`;
 
-  /* */
+  /* - */
 
   test.case = 'add identity to not existed config';
-  var identity = { name : 'user', login : 'userLogin' };
+  var identity = { name : 'user', login : 'userLogin', type : 'git' };
   var got = _.identity.identityNew({ profileDir, identity });
   test.identical( got, undefined );
   var config = _.censor.configRead({ profileDir });
-  test.identical( config.identity, { user : { login : 'userLogin', type : 'general' } } );
+  test.identical( config.identity, { user : { login : 'userLogin', type : 'git' } } );
   _.censor.profileDel( profileDir );
 
   test.case = 'add identity to existed config';
   _.censor.configSet({ profileDir, set : { about : { name : profileDir } } });
   var config = _.censor.configRead({ profileDir });
   test.identical( config, { about : { name : profileDir }, path : {} } );
-  var identity = { name : 'user', login : 'userLogin' };
+  var identity = { name : 'user', login : 'userLogin', type : 'git' };
   var got = _.identity.identityNew({ profileDir, identity });
   test.identical( got, undefined );
   var config = _.censor.configRead({ profileDir });
   test.identical( config.about, { name : profileDir } );
   test.identical( config.path, {} );
-  test.identical( config.identity, { user : { login : 'userLogin', type : 'general' } } );
+  test.identical( config.identity, { user : { login : 'userLogin', type : 'git' } } );
   _.censor.profileDel( profileDir );
 
   test.case = 'add several identities to not existed config';
-  var identity = { name : 'user', login : 'userLogin' };
+  var identity = { name : 'user', login : 'userLogin', type : 'git' };
   _.identity.identityNew({ profileDir, identity });
-  var identity = { name : 'user2', login : 'userLogin2' };
+  var identity = { name : 'user2', login : 'userLogin2', type : 'npm' };
   _.identity.identityNew({ profileDir, identity });
   var config = _.censor.configRead({ profileDir });
   var exp =
   {
-    user : { login : 'userLogin', type : 'general' },
-    user2 : { login : 'userLogin2', type : 'general' }
+    user : { login : 'userLogin', type : 'git' },
+    user2 : { login : 'userLogin2', type : 'npm' }
   };
   test.identical( config.identity, exp );
   _.censor.profileDel( profileDir );
@@ -572,15 +572,15 @@ function identityNew( test )
   _.censor.configSet({ profileDir, set : { about : { name : profileDir } } });
   var config = _.censor.configRead({ profileDir });
   test.identical( config, { about : { name : profileDir }, path : {} } );
-  var identity = { name : 'user', login : 'userLogin' };
+  var identity = { name : 'user', login : 'userLogin', type : 'git' };
   _.identity.identityNew({ profileDir, identity });
-  var identity = { name : 'user2', login : 'userLogin2' };
+  var identity = { name : 'user2', login : 'userLogin2', type : 'npm' };
   _.identity.identityNew({ profileDir, identity });
   var config = _.censor.configRead({ profileDir });
   var exp =
   {
-    user : { login : 'userLogin', type : 'general' },
-    user2 : { login : 'userLogin2', type : 'general' }
+    user : { login : 'userLogin', type : 'git' },
+    user2 : { login : 'userLogin2', type : 'npm' }
   };
   test.identical( config.about, { name : profileDir } );
   test.identical( config.path, {} );
@@ -595,7 +595,33 @@ function identityNew( test )
   test.identical( config.identity, exp );
   _.censor.profileDel( profileDir );
 
-  /* */
+  /* - */
+
+  test.case = 'create superidentity with string identities';
+  var identity = { name : 'user', type : 'super', identities : 'foo' };
+  _.identity.identityNew({ profileDir, identity });
+  var config = _.censor.configRead({ profileDir });
+  var exp = { user : { type : 'super', identities : { 'foo' : true } } };
+  test.identical( config.identity, exp );
+  _.censor.profileDel( profileDir );
+
+  test.case = 'create superidentity with array of strings identities';
+  var identity = { name : 'user', type : 'super', identities : [ 'foo', 'bar' ] };
+  _.identity.identityNew({ profileDir, identity });
+  var config = _.censor.configRead({ profileDir });
+  var exp = { user : { type : 'super', identities : { 'foo' : true, 'bar' : true } } };
+  test.identical( config.identity, exp );
+  _.censor.profileDel( profileDir );
+
+  test.case = 'create superidentity with map of identities';
+  var identity = { name : 'user', type : 'super', identities : { 'foo' : true, 'bar' : true } };
+  _.identity.identityNew({ profileDir, identity });
+  var config = _.censor.configRead({ profileDir });
+  var exp = { user : { type : 'super', identities : { 'foo' : true, 'bar' : true } } };
+  test.identical( config.identity, exp );
+  _.censor.profileDel( profileDir );
+
+  /* - */
 
   test.case = 'rewrite identity with the existed name, force - 1';
   var identity = { name : 'user', login : 'userLogin', type : 'git' };
@@ -603,7 +629,7 @@ function identityNew( test )
   var config = _.censor.configRead({ profileDir });
   var exp = { user : { login : 'userLogin', type : 'git' } };
   test.identical( config.identity, exp );
-  var identity = { name : 'user', login : 'userLogin2', email : 'user@domain.com' };
+  var identity = { name : 'user', login : 'userLogin2', email : 'user@domain.com', type : 'git' };
   _.identity.identityNew({ profileDir, identity, force : 1 });
   var config = _.censor.configRead({ profileDir });
   var exp = { user : { login : 'userLogin2', type : 'git', email : 'user@domain.com' } };
@@ -626,11 +652,11 @@ function identityNew( test )
   test.shouldThrowErrorSync( () => _.identity.identityNew( 'wrong' ) );
 
   test.case = 'unknown option in options map';
-  var o = { profileDir, identity : { name : 'user', login : 'userLogin' }, unknown : 1 };
+  var o = { profileDir, identity : { name : 'user', login : 'userLogin', type : 'git' }, unknown : 1 };
   test.shouldThrowErrorSync( () => _.identity.identityNew( o ) );
 
   test.case = 'wrong type of o.identity';
-  var o = { profileDir, identity : [ { name : 'user', login : 'userLogin' } ] };
+  var o = { profileDir, identity : [ { name : 'user', login : 'userLogin', type : 'git' } ] };
   test.shouldThrowErrorSync( () => _.identity.identityNew( o ) );
 
   test.case = 'unknown o.identity.type';
@@ -638,25 +664,34 @@ function identityNew( test )
   test.shouldThrowErrorSync( () => _.identity.identityNew( o ) );
 
   test.case = 'o.identity.name is not defined string';
-  var o = { profileDir, identity : { name : '', login : 'userLogin' } };
+  var o = { profileDir, identity : { name : '', login : 'userLogin', type : 'git' } };
   test.shouldThrowErrorSync( () => _.identity.identityNew( o ) );
-  var o = { profileDir, identity : { name : null, login : 'userLogin' } };
+  var o = { profileDir, identity : { name : null, login : 'userLogin', type : 'git' } };
   test.shouldThrowErrorSync( () => _.identity.identityNew( o ) );
 
   test.case = 'o.identity.*login is not defined string';
-  var o = { profileDir, identity : { name : 'user', login : '' } };
+  var o = { profileDir, identity : { name : 'user', login : '', type : 'git' } };
   test.shouldThrowErrorSync( () => _.identity.identityNew( o ) );
-  var o = { profileDir, identity : { name : 'user', login : null } };
+  var o = { profileDir, identity : { name : 'user', login : null, type : 'git' } };
   test.shouldThrowErrorSync( () => _.identity.identityNew( o ) );
-  var o = { profileDir, identity : { 'name' : 'user', 'git.login' : '' } };
+  var o = { profileDir, identity : { 'name' : 'user', 'git.login' : '', 'type' : 'git' } };
   test.shouldThrowErrorSync( () => _.identity.identityNew( o ) );
-  var o = { profileDir, identity : { 'name' : 'user', 'git.login' : null } };
+  var o = { profileDir, identity : { 'name' : 'user', 'git.login' : null, 'type' : 'git' } };
   test.shouldThrowErrorSync( () => _.identity.identityNew( o ) );
 
   test.case = 'try to create identity with the existed name';
-  var o = { profileDir, identity : { name : 'user', login : 'userLogin' } };
+  var o = { profileDir, identity : { name : 'user', login : 'userLogin', type : 'git' } };
   _.identity.identityNew( o );
-  var o = { profileDir, identity : { name : 'user', login : 'different' } };
+  var o = { profileDir, identity : { name : 'user', login : 'different', type : 'git' } };
+  test.shouldThrowErrorSync( () => _.identity.identityNew( o ) );
+  _.censor.profileDel( profileDir );
+
+  test.case = 'superidentity has no field `identities`';
+  var o = { profileDir, identity : { name : 'user', type : 'super' } };
+  test.shouldThrowErrorSync( () => _.identity.identityNew( o ) );
+
+  test.case = 'superidentity has wrong field `identities`';
+  var o = { profileDir, identity : { name : 'user', type : 'super', identities : null } };
   test.shouldThrowErrorSync( () => _.identity.identityNew( o ) );
   _.censor.profileDel( profileDir );
 }
@@ -708,10 +743,10 @@ function identityFromWithGit( test )
   a.ready.then( () =>
   {
     test.case = 'make new identity from git config, selector - undefined';
-    var identity = { name : 'user', login : 'userLogin', email : 'user@domain.com' };
+    var identity = { name : 'user', login : 'userLogin', email : 'user@domain.com', type : 'git' };
     _.identity.identityNew({ profileDir, identity });
     var config = _.censor.configRead({ profileDir });
-    var exp = { user : { login : 'userLogin', type : 'general', email : 'user@domain.com' } };
+    var exp = { user : { login : 'userLogin', type : 'git', email : 'user@domain.com' } };
     test.identical( config.identity, exp );
     _.censor.profileHookCallWithIdentity({ profileDir, type : 'git', selector : 'user' });
     var got = _.identity.identityFrom({ profileDir, type : 'git' });
@@ -719,7 +754,7 @@ function identityFromWithGit( test )
     var config = _.censor.configRead({ profileDir });
     var exp =
     {
-      user : { login : 'userLogin', type : 'general', email : 'user@domain.com' },
+      user : { login : 'userLogin', type : 'git', email : 'user@domain.com' },
       userLogin : { 'git.login' : 'userLogin', 'git.email' : 'user@domain.com', 'type' : 'git' },
     };
     test.identical( config.identity, exp );
@@ -732,10 +767,10 @@ function identityFromWithGit( test )
   a.ready.then( () =>
   {
     test.case = 'make new identity from git config, selector - string';
-    var identity = { name : 'user', login : 'userLogin', email : 'user@domain.com' };
+    var identity = { name : 'user', login : 'userLogin', email : 'user@domain.com', type : 'git' };
     _.identity.identityNew({ profileDir, identity });
     var config = _.censor.configRead({ profileDir });
-    var exp = { user : { login : 'userLogin', type : 'general', email : 'user@domain.com' } };
+    var exp = { user : { login : 'userLogin', type : 'git', email : 'user@domain.com' } };
     test.identical( config.identity, exp );
     _.censor.profileHookCallWithIdentity({ profileDir, type : 'git', selector : 'user' });
     var got = _.identity.identityFrom({ profileDir, selector : 'git', type : 'git' });
@@ -743,7 +778,7 @@ function identityFromWithGit( test )
     var config = _.censor.configRead({ profileDir });
     var exp =
     {
-      user : { login : 'userLogin', type : 'general', email : 'user@domain.com' },
+      user : { login : 'userLogin', type : 'git', email : 'user@domain.com' },
       git : { 'git.login' : 'userLogin', 'git.email' : 'user@domain.com', 'type' : 'git' },
     };
     test.identical( config.identity, exp );
@@ -756,15 +791,15 @@ function identityFromWithGit( test )
   a.ready.then( () =>
   {
     test.case = 'extend existed identity by specifique options';
-    var identity = { name : 'user', login : 'userLogin', email : 'user@domain.com' };
+    var identity = { name : 'user', login : 'userLogin', email : 'user@domain.com', type : 'git' };
     _.identity.identityNew({ profileDir, identity });
-    var identity = { name : 'user2', login : 'userLogin2', email : 'user2@domain.com' };
+    var identity = { name : 'user2', login : 'userLogin2', email : 'user2@domain.com', type : 'git' };
     _.identity.identityNew({ profileDir, identity });
     var config = _.censor.configRead({ profileDir });
     var exp =
     {
-      user : { login : 'userLogin', type : 'general', email : 'user@domain.com' },
-      user2 : { login : 'userLogin2', type : 'general', email : 'user2@domain.com' },
+      user : { login : 'userLogin', type : 'git', email : 'user@domain.com' },
+      user2 : { login : 'userLogin2', type : 'git', email : 'user2@domain.com' },
     };
     test.identical( config.identity, exp );
     _.censor.profileHookCallWithIdentity({ profileDir, type : 'git', selector : 'user2' });
@@ -781,7 +816,7 @@ function identityFromWithGit( test )
         'git.login' : 'userLogin2',
         'git.email' : 'user2@domain.com'
       },
-      user2 : { login : 'userLogin2', type : 'general', email : 'user2@domain.com' },
+      user2 : { login : 'userLogin2', type : 'git', email : 'user2@domain.com' },
     };
     test.identical( config.identity, exp );
     _.censor.profileDel( profileDir );
@@ -795,13 +830,13 @@ function identityFromWithGit( test )
     test.case = 'rewrite existed identity by specifique options';
     var identity = { 'name' : 'user', 'git.login' : 'userLogin', 'git.email' : 'user@domain.com', 'type' : 'git' };
     _.identity.identityNew({ profileDir, identity });
-    var identity = { name : 'user2', login : 'userLogin2', email : 'user2@domain.com' };
+    var identity = { name : 'user2', login : 'userLogin2', email : 'user2@domain.com', type : 'git' };
     _.identity.identityNew({ profileDir, identity });
     var config = _.censor.configRead({ profileDir });
     var exp =
     {
       user : { 'type' : 'git', 'git.login' : 'userLogin', 'git.email' : 'user@domain.com' },
-      user2 : { login : 'userLogin2', type : 'general', email : 'user2@domain.com' },
+      user2 : { login : 'userLogin2', type : 'git', email : 'user2@domain.com' },
     };
     test.identical( config.identity, exp );
     _.censor.profileHookCallWithIdentity({ profileDir, type : 'git', selector : 'user2' });
@@ -811,7 +846,7 @@ function identityFromWithGit( test )
     var exp =
     {
       user : { 'type' : 'git', 'git.login' : 'userLogin2', 'git.email' : 'user2@domain.com' },
-      user2 : { login : 'userLogin2', type : 'general', email : 'user2@domain.com' },
+      user2 : { login : 'userLogin2', type : 'git', email : 'user2@domain.com' },
     };
     test.identical( config.identity, exp );
     _.censor.profileDel( profileDir );
@@ -851,7 +886,7 @@ function identityFromWithGit( test )
       test.shouldThrowErrorSync( () => _.identity.identityFrom({ profileDir, selector : 'user', type : null }) );
 
       test.case = 'identity exists, force - 0';
-      var identity = { name : 'user', login : 'userLogin' };
+      var identity = { name : 'user', login : 'userLogin', type : 'git' };
       _.identity.identityNew({ profileDir, identity });
       test.shouldThrowErrorSync( () => _.identity.identityFrom({ profileDir, selector : 'user', type : 'git', force : false }) );
       _.censor.profileDel( profileDir );
@@ -898,17 +933,17 @@ function identityFromWithSsh( test )
   writeKey( 'id_rsa' ).then( () =>
   {
     test.case = 'make new identity from ssh, selector - undefined';
-    var identity = { name : 'user', login : 'userLogin', email : 'user@domain.com' };
+    var identity = { name : 'user', login : 'userLogin', email : 'user@domain.com', type : 'git' };
     _.identity.identityNew({ profileDir, identity });
     var config = _.censor.configRead({ profileDir });
-    var exp = { user : { login : 'userLogin', type : 'general', email : 'user@domain.com' } };
+    var exp = { user : { login : 'userLogin', type : 'git', email : 'user@domain.com' } };
     test.identical( config.identity, exp );
     var got = _.identity.identityFrom({ profileDir, type : 'ssh' });
     test.identical( got, undefined );
     var config = _.censor.configRead({ profileDir });
     var exp =
     {
-      user : { login : 'userLogin', type : 'general', email : 'user@domain.com' },
+      user : { login : 'userLogin', type : 'git', email : 'user@domain.com' },
       id_rsa : { 'ssh.login' : 'id_rsa', 'ssh.path' : a.path.join( '.censor', profileDir, 'ssh', 'id_rsa' ), 'type' : 'ssh' },
     };
     test.identical( config.identity, exp );
@@ -921,17 +956,17 @@ function identityFromWithSsh( test )
   a.ready.then( () =>
   {
     test.case = 'make new ssh identity from default key, selector - string';
-    var identity = { name : 'user', login : 'userLogin', email : 'user@domain.com' };
+    var identity = { name : 'user', login : 'userLogin', email : 'user@domain.com', type : 'git' };
     _.identity.identityNew({ profileDir, identity });
     var config = _.censor.configRead({ profileDir });
-    var exp = { user : { login : 'userLogin', type : 'general', email : 'user@domain.com' } };
+    var exp = { user : { login : 'userLogin', type : 'git', email : 'user@domain.com' } };
     test.identical( config.identity, exp );
     var got = _.identity.identityFrom({ profileDir, selector : 'ssh', type : 'ssh' });
     test.identical( got, undefined );
     var config = _.censor.configRead({ profileDir });
     var exp =
     {
-      user : { login : 'userLogin', type : 'general', email : 'user@domain.com' },
+      user : { login : 'userLogin', type : 'git', email : 'user@domain.com' },
       ssh : { 'ssh.login' : 'ssh', 'ssh.path' : a.path.join( '.censor', profileDir, 'ssh', 'ssh' ), 'type' : 'ssh' },
     };
     test.identical( config.identity, exp );
@@ -944,12 +979,12 @@ function identityFromWithSsh( test )
   a.ready.then( () =>
   {
     test.case = 'extend existed identity by specifique options';
-    var identity = { name : 'user', login : 'userLogin', email : 'user@domain.com' };
+    var identity = { name : 'user', login : 'userLogin', email : 'user@domain.com', type : 'git' };
     _.identity.identityNew({ profileDir, identity });
     var config = _.censor.configRead({ profileDir });
     var exp =
     {
-      user : { login : 'userLogin', type : 'general', email : 'user@domain.com' },
+      user : { login : 'userLogin', type : 'git', email : 'user@domain.com' },
     };
     test.identical( config.identity, exp );
     var got = _.identity.identityFrom({ profileDir, selector : 'user', type : 'ssh', force : 1 });
@@ -976,17 +1011,17 @@ function identityFromWithSsh( test )
   writeKey( 'user2' ).then( () =>
   {
     test.case = 'make new ssh identity from key with identity name, selector - string';
-    var identity = { name : 'user', login : 'userLogin', email : 'user@domain.com' };
+    var identity = { name : 'user', login : 'userLogin', email : 'user@domain.com', type : 'git' };
     _.identity.identityNew({ profileDir, identity });
     var config = _.censor.configRead({ profileDir });
-    var exp = { user : { login : 'userLogin', type : 'general', email : 'user@domain.com' } };
+    var exp = { user : { login : 'userLogin', type : 'git', email : 'user@domain.com' } };
     test.identical( config.identity, exp );
     var got = _.identity.identityFrom({ profileDir, selector : 'user2', type : 'ssh' });
     test.identical( got, undefined );
     var config = _.censor.configRead({ profileDir });
     var exp =
     {
-      user : { login : 'userLogin', type : 'general', email : 'user@domain.com' },
+      user : { login : 'userLogin', type : 'git', email : 'user@domain.com' },
       user2 : { 'ssh.login' : 'user2', 'ssh.path' : a.path.join( '.censor', profileDir, 'ssh', 'user2' ), 'type' : 'ssh' },
     };
     test.identical( config.identity, exp );
@@ -1086,7 +1121,7 @@ function identityDel( test )
     _.censor.profileDel( profileDir );
 
     test.case = 'del identities from existed config, single identity';
-    var identity = { name : 'user', login : 'userLogin' };
+    var identity = { name : 'user', login : 'userLogin', type : 'git' };
     _.identity.identityNew({ profileDir, identity });
     var config = _.censor.configRead({ profileDir });
     test.true( _.map.is( config.identity ) );
@@ -1097,9 +1132,9 @@ function identityDel( test )
     _.censor.profileDel( profileDir );
 
     test.case = 'del identities from existed config, several identities';
-    var identity = { name : 'user', login : 'userLogin' };
+    var identity = { name : 'user', login : 'userLogin', type : 'git' };
     _.identity.identityNew({ profileDir, identity });
-    var identity = { name : 'user2', login : 'userLogin2' };
+    var identity = { name : 'user2', login : 'userLogin2', type : 'git' };
     _.identity.identityNew({ profileDir, identity });
     var config = _.censor.configRead({ profileDir });
     test.true( _.map.is( config.identity ) );
@@ -1136,7 +1171,7 @@ function identityDel( test )
   _.censor.profileDel( profileDir );
 
   test.case = 'del identity from existed config, single identity, selector matches identity';
-  var identity = { name : 'user', login : 'userLogin' };
+  var identity = { name : 'user', login : 'userLogin', type : 'git' };
   _.identity.identityNew({ profileDir, identity });
   var config = _.censor.configRead({ profileDir });
   test.true( _.map.is( config.identity ) );
@@ -1147,33 +1182,33 @@ function identityDel( test )
   _.censor.profileDel( profileDir );
 
   test.case = 'del identity from existed config, single identity, selector matches not identity';
-  var identity = { name : 'user', login : 'userLogin' };
+  var identity = { name : 'user', login : 'userLogin', type : 'git' };
   _.identity.identityNew({ profileDir, identity });
   var config = _.censor.configRead({ profileDir });
   test.true( _.map.is( config.identity ) );
   var got = _.identity.identityDel({ profileDir, selector : 'user2' });
   test.identical( got, undefined );
   var config = _.censor.configRead({ profileDir });
-  test.identical( config.identity, { user : { login : 'userLogin', type : 'general' } } );
+  test.identical( config.identity, { user : { login : 'userLogin', type : 'git' } } );
   _.censor.profileDel( profileDir );
 
   test.case = 'del identity from existed config, several identities, selector matches identity';
-  var identity = { name : 'user', login : 'userLogin' };
+  var identity = { name : 'user', login : 'userLogin', type : 'git' };
   _.identity.identityNew({ profileDir, identity });
-  var identity = { name : 'user2', login : 'userLogin2' };
+  var identity = { name : 'user2', login : 'userLogin2', type : 'git' };
   _.identity.identityNew({ profileDir, identity });
   var config = _.censor.configRead({ profileDir });
   test.true( _.map.is( config.identity ) );
   var got = _.identity.identityDel({ profileDir, selector : 'user2' });
   test.identical( got, undefined );
   var config = _.censor.configRead({ profileDir });
-  test.identical( config.identity, { user : { login : 'userLogin', type : 'general' } } );
+  test.identical( config.identity, { user : { login : 'userLogin', type : 'git' } } );
   _.censor.profileDel( profileDir );
 
   test.case = 'del identity from existed config, several identities, selector matches not identity';
-  var identity = { name : 'user', login : 'userLogin' };
+  var identity = { name : 'user', login : 'userLogin', type : 'git' };
   _.identity.identityNew({ profileDir, identity });
-  var identity = { name : 'user2', login : 'userLogin2' };
+  var identity = { name : 'user2', login : 'userLogin2', type : 'git' };
   _.identity.identityNew({ profileDir, identity });
   var config = _.censor.configRead({ profileDir });
   test.true( _.map.is( config.identity ) );
@@ -1182,16 +1217,16 @@ function identityDel( test )
   var config = _.censor.configRead({ profileDir });
   var exp =
   {
-    user : { login : 'userLogin', type : 'general' },
-    user2 : { login : 'userLogin2', type : 'general' },
+    user : { login : 'userLogin', type : 'git' },
+    user2 : { login : 'userLogin2', type : 'git' },
   };
   test.identical( config.identity, exp );
   _.censor.profileDel( profileDir );
 
   test.case = 'del identity from existed config, several identities, selector with glob';
-  var identity = { name : 'user', login : 'userLogin' };
+  var identity = { name : 'user', login : 'userLogin', type : 'git' };
   _.identity.identityNew({ profileDir, identity });
-  var identity = { name : 'user2', login : 'userLogin2' };
+  var identity = { name : 'user2', login : 'userLogin2', type : 'git' };
   _.identity.identityNew({ profileDir, identity });
   var config = _.censor.configRead({ profileDir });
   test.true( _.map.is( config.identity ) );
@@ -1200,8 +1235,8 @@ function identityDel( test )
   var config = _.censor.configRead({ profileDir });
   var exp =
   {
-    user : { login : 'userLogin', type : 'general' },
-    user2 : { login : 'userLogin2', type : 'general' },
+    user : { login : 'userLogin', type : 'git' },
+    user2 : { login : 'userLogin2', type : 'git' },
   };
   test.identical( config.identity, exp );
   _.censor.profileDel( profileDir );
@@ -1413,13 +1448,13 @@ module.exports = onIdentity;`;
     test.case = 'switch several identities';
     var identity = { name : 'user', login : 'userLogin', email : 'user@domain.com', type : 'git' };
     _.identity.identityNew({ profileDir, identity });
-    var identity = { name : 'user2', login : 'userLogin2', email : 'user2@domain.com', type : 'general' };
+    var identity = { name : 'user2', type : 'super', identities : { user : true } };
     _.identity.identityNew({ profileDir, identity });
     var files = a.find( userProfileDir );
     test.identical( files, [ '.', './config.yaml' ] );
     var config = _.censor.configRead({ profileDir });
     test.identical( config.identity.user, { login : 'userLogin', type : 'git', email : 'user@domain.com' } );
-    test.identical( config.identity.user2, { login : 'userLogin2', type : 'general', email : 'user2@domain.com' } );
+    test.identical( config.identity.user2, { login : 'userLogin2', type : 'super', email : 'user2@domain.com' } );
     test.identical( config.identity[ '_previous.git' ], undefined );
 
     var got = _.identity.identityUse({ profileDir, type : 'git', selector : 'user' });
@@ -1428,7 +1463,7 @@ module.exports = onIdentity;`;
     test.identical( files, [ '.', './config.yaml' ] );
     var config = _.censor.configRead({ profileDir });
     test.identical( config.identity.user, { login : 'userLogin', type : 'git', email : 'user@domain.com' } );
-    test.identical( config.identity.user2, { login : 'userLogin2', type : 'general', email : 'user2@domain.com' } );
+    test.identical( config.identity.user2, { login : 'userLogin2', type : 'super', email : 'user2@domain.com' } );
     test.identical( config.identity[ '_previous.git' ], undefined );
 
     var got = _.identity.identityUse({ profileDir, type : 'git', selector : 'user2' });
@@ -1437,7 +1472,7 @@ module.exports = onIdentity;`;
     test.identical( files, [ '.', './config.yaml' ] );
     var config = _.censor.configRead({ profileDir });
     test.identical( config.identity.user, { login : 'userLogin', type : 'git', email : 'user@domain.com' } );
-    test.identical( config.identity.user2, { login : 'userLogin2', type : 'general', email : 'user2@domain.com' } );
+    test.identical( config.identity.user2, { login : 'userLogin2', type : 'super', email : 'user2@domain.com' } );
     var exp = { 'git.login' : 'userLogin', 'type' : 'git', 'git.email' : 'user@domain.com' };
     test.identical( config.identity[ '_previous.git' ], exp );
     _.censor.profileDel( profileDir );
@@ -1709,7 +1744,7 @@ function identityUpdate( test )
 function identityResolveDefaultMaybe( test )
 {
   const profileDir = `test-${ _.intRandom( 1000000 ) }`;
-  var defaultIdentity = { name : 'user', login : 'userLogin', type : 'general', default : true };
+  var defaultIdentity = { name : 'user', login : 'userLogin', type : 'super', identities : {}, default : true };
   var serviceIdentity1 = { name : 'user21', login : 'userLogin', type : 'git', services : [ 'github.com', 'gitlab.com' ] };
   var serviceIdentity2 = { name : 'user22', login : 'userLogin', type : 'npm', services : [ 'npmjs.org' ] };
   var typeIdentity = { name : 'user3', login : 'userLogin', type : 'rust' };
