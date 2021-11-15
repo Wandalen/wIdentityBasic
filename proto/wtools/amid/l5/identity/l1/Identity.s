@@ -1,4 +1,4 @@
-( function _Namespace_s_()
+( function _Identity_s_()
 {
 
 'use strict';
@@ -28,7 +28,7 @@ function identityCopy( o )
   _.assert( _.map.is( identity ), `Selected no identity : ${ o.identitySrcName }. Please, improve selector.` );
   _.assert
   (
-    ( 'login' in identity || `${ identity.type }.login` in identity ) && 'type' in identity,
+    ( 'login' in identity || `${ identity.type }.login` in identity || 'identities' in identity ) && 'type' in identity,
     `Selected ${ _.props.keys( identity ).length } identity(s). Please, improve selector.`
   );
 
