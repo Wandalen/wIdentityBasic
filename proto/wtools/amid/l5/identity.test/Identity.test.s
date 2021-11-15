@@ -72,7 +72,7 @@ function identityCopy( test )
 
   /* */
 
-  test.case = 'config exists, identity exists, selector matches identity, dst identity exists, force - 0';
+  test.case = 'config exists, identity exists, selector matches identity, dst identity exists, force - 1';
   var identity = { name : 'user', login : 'userLogin', type : 'git' };
   _.identity.identityNew({ profileDir, identity });
   var identity = { name : 'user2', login : 'userLogin2', type : 'git' };
@@ -81,6 +81,20 @@ function identityCopy( test )
   test.identical( _.props.keys( config.identity ), [ 'user', 'user2' ] );
   test.notIdentical( config.identity.user, config.identity.user3 );
   var got = _.identity.identityCopy({ profileDir, identitySrcName : 'user', identityDstName : 'user2', force : 1 });
+  test.identical( got, undefined );
+  var config = _.censor.configRead({ profileDir });
+  test.identical( _.props.keys( config.identity ), [ 'user', 'user2' ] );
+  test.identical( config.identity.user, config.identity.user2 );
+  _.censor.profileDel( profileDir );
+
+  /* */
+
+  test.case = 'config exists, superidentity exists, selector matches identity, dst identity not exists';
+  var identity = { name : 'user', type : 'super', identities : { 'foo' : true } };
+  _.identity.identityNew({ profileDir, identity });
+  var config = _.censor.configRead({ profileDir });
+  test.identical( _.props.keys( config.identity ), [ 'user' ] );
+  var got = _.identity.identityCopy({ profileDir, identitySrcName : 'user', identityDstName : 'user2' });
   test.identical( got, undefined );
   var config = _.censor.configRead({ profileDir });
   test.identical( _.props.keys( config.identity ), [ 'user', 'user2' ] );
