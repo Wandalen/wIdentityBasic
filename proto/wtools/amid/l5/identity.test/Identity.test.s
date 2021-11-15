@@ -762,7 +762,7 @@ function identityFromWithGit( test )
     var config = _.censor.configRead({ profileDir });
     var exp = { user : { login : 'userLogin', type : 'git', email : 'user@domain.com' } };
     test.identical( config.identity, exp );
-    _.censor.profileHookCallWithIdentity({ profileDir, type : 'git', selector : 'user' });
+    _.censor.profileHookCallWithIdentity({ profileDir, identity : config.identity.user });
     var got = _.identity.identityFrom({ profileDir, type : 'git' });
     test.identical( got, undefined );
     var config = _.censor.configRead({ profileDir });
@@ -786,7 +786,7 @@ function identityFromWithGit( test )
     var config = _.censor.configRead({ profileDir });
     var exp = { user : { login : 'userLogin', type : 'git', email : 'user@domain.com' } };
     test.identical( config.identity, exp );
-    _.censor.profileHookCallWithIdentity({ profileDir, type : 'git', selector : 'user' });
+    _.censor.profileHookCallWithIdentity({ profileDir, identity : config.identity.user });
     var got = _.identity.identityFrom({ profileDir, selector : 'git', type : 'git' });
     test.identical( got, undefined );
     var config = _.censor.configRead({ profileDir });
@@ -816,7 +816,7 @@ function identityFromWithGit( test )
       user2 : { login : 'userLogin2', type : 'git', email : 'user2@domain.com' },
     };
     test.identical( config.identity, exp );
-    _.censor.profileHookCallWithIdentity({ profileDir, type : 'git', selector : 'user2' });
+    _.censor.profileHookCallWithIdentity({ profileDir, identity : config.identity.user2 });
     var got = _.identity.identityFrom({ profileDir, selector : 'user', type : 'git', force : 1 });
     test.identical( got, undefined );
     var config = _.censor.configRead({ profileDir });
@@ -853,7 +853,7 @@ function identityFromWithGit( test )
       user2 : { login : 'userLogin2', type : 'git', email : 'user2@domain.com' },
     };
     test.identical( config.identity, exp );
-    _.censor.profileHookCallWithIdentity({ profileDir, type : 'git', selector : 'user2' });
+    _.censor.profileHookCallWithIdentity({ profileDir, identity : config.identity.user2 });
     var got = _.identity.identityFrom({ profileDir, selector : 'user', type : 'git', force : 1 });
     test.identical( got, undefined );
     var config = _.censor.configRead({ profileDir });
@@ -1393,82 +1393,85 @@ module.exports = onIdentity;`;
 
   /* - */
 
-  begin().then( () =>
-  {
-    test.case = 'use git identity from scratch, no type';
-    var identity = { name : 'user', login : 'userLogin', email : 'user@domain.com', type : 'git' };
-    _.identity.identityNew({ profileDir, identity });
-    var files = a.find( userProfileDir );
-    test.identical( files, [ '.', './config.yaml' ] );
-    var config = _.censor.configRead({ profileDir });
-    test.identical( config.identity.user, { login : 'userLogin', email : 'user@domain.com', type : 'git' } );
-    test.identical( config.identity[ '_previous.git' ], undefined );
-    var got = _.identity.identityUse({ profileDir, type : 'git', selector : 'user' });
-    test.identical( got, undefined );
-    var files = a.find( userProfileDir );
-    test.identical( files, [ '.', './config.yaml' ] );
-    var config = _.censor.configRead({ profileDir });
-    test.identical( config.identity.user, { login : 'userLogin', type : 'git', email : 'user@domain.com' } );
-    test.identical( config.identity[ '_previous.git' ], undefined );
-    _.censor.profileDel( profileDir );
-    return null;
-  });
-  a.shell( 'git config --global --list' )
-  .then( ( op ) =>
-  {
-    test.identical( _.strCount( op.output, 'user.name=userLogin' ), 1 );
-    test.identical( _.strCount( op.output, 'user.email=user@domain.com' ), 1 );
-    test.identical( _.strCount( op.output, 'url.https://userLogin@github.com.insteadof=https://github.com' ), 1 );
-    test.identical( _.strCount( op.output, 'url.https://userLogin@bitbucket.org.insteadof=https://bitbucket.org' ), 1 );
-    return null;
-  });
+  // begin().then( () =>
+  // {
+  //   test.case = 'use git identity from scratch, no type';
+  //   var identity = { name : 'user', login : 'userLogin', email : 'user@domain.com', type : 'git' };
+  //   _.identity.identityNew({ profileDir, identity });
+  //   var files = a.find( userProfileDir );
+  //   test.identical( files, [ '.', './config.yaml' ] );
+  //   var config = _.censor.configRead({ profileDir });
+  //   test.identical( config.identity.user, { login : 'userLogin', email : 'user@domain.com', type : 'git' } );
+  //   test.identical( config.identity[ '_previous.git' ], undefined );
+  //   var got = _.identity.identityUse({ profileDir, type : 'git', selector : 'user' });
+  //   test.identical( got, undefined );
+  //   var files = a.find( userProfileDir );
+  //   test.identical( files, [ '.', './config.yaml' ] );
+  //   var config = _.censor.configRead({ profileDir });
+  //   test.identical( config.identity.user, { login : 'userLogin', type : 'git', email : 'user@domain.com' } );
+  //   test.identical( config.identity[ '_previous.git' ], undefined );
+  //   _.censor.profileDel( profileDir );
+  //   return null;
+  // });
+  // a.shell( 'git config --global --list' )
+  // .then( ( op ) =>
+  // {
+  //   test.identical( _.strCount( op.output, 'user.name=userLogin' ), 1 );
+  //   test.identical( _.strCount( op.output, 'user.email=user@domain.com' ), 1 );
+  //   test.identical( _.strCount( op.output, 'url.https://userLogin@github.com.insteadof=https://github.com' ), 1 );
+  //   test.identical( _.strCount( op.output, 'url.https://userLogin@bitbucket.org.insteadof=https://bitbucket.org' ), 1 );
+  //   return null;
+  // });
+  //
+  // /* */
+  //
+  // begin().then( () =>
+  // {
+  //   test.case = 'use git identity from scratch';
+  //   var identity = { name : 'user', login : 'userLogin', email : 'user@domain.com', type : 'git' };
+  //   _.identity.identityNew({ profileDir, identity });
+  //   var files = a.find( userProfileDir );
+  //   test.identical( files, [ '.', './config.yaml' ] );
+  //   var config = _.censor.configRead({ profileDir });
+  //   test.identical( config.identity.user, { login : 'userLogin', type : 'git', email : 'user@domain.com' } );
+  //   test.identical( config.identity[ '_previous.git' ], undefined );
+  //   var got = _.identity.identityUse({ profileDir, type : 'git', selector : 'user' });
+  //   test.identical( got, undefined );
+  //   var files = a.find( userProfileDir );
+  //   test.identical( files, [ '.', './config.yaml' ] );
+  //   var config = _.censor.configRead({ profileDir });
+  //   test.identical( config.identity.user, { login : 'userLogin', type : 'git', email : 'user@domain.com' } );
+  //   test.identical( config.identity[ '_previous.git' ], undefined );
+  //   _.censor.profileDel( profileDir );
+  //   return null;
+  // });
+  // a.shell( 'git config --global --list' )
+  // .then( ( op ) =>
+  // {
+  //   test.identical( _.strCount( op.output, 'user.name=userLogin' ), 1 );
+  //   test.identical( _.strCount( op.output, 'user.email=user@domain.com' ), 1 );
+  //   test.identical( _.strCount( op.output, 'url.https://userLogin@github.com.insteadof=https://github.com' ), 1 );
+  //   test.identical( _.strCount( op.output, 'url.https://userLogin@bitbucket.org.insteadof=https://bitbucket.org' ), 1 );
+  //   return null;
+  // });
 
   /* */
 
   begin().then( () =>
   {
-    test.case = 'use git identity from scratch';
+    test.case = 'switch several identities with superidentity';
     var identity = { name : 'user', login : 'userLogin', email : 'user@domain.com', type : 'git' };
     _.identity.identityNew({ profileDir, identity });
-    var files = a.find( userProfileDir );
-    test.identical( files, [ '.', './config.yaml' ] );
-    var config = _.censor.configRead({ profileDir });
-    test.identical( config.identity.user, { login : 'userLogin', type : 'git', email : 'user@domain.com' } );
-    test.identical( config.identity[ '_previous.git' ], undefined );
-    var got = _.identity.identityUse({ profileDir, type : 'git', selector : 'user' });
-    test.identical( got, undefined );
-    var files = a.find( userProfileDir );
-    test.identical( files, [ '.', './config.yaml' ] );
-    var config = _.censor.configRead({ profileDir });
-    test.identical( config.identity.user, { login : 'userLogin', type : 'git', email : 'user@domain.com' } );
-    test.identical( config.identity[ '_previous.git' ], undefined );
-    _.censor.profileDel( profileDir );
-    return null;
-  });
-  a.shell( 'git config --global --list' )
-  .then( ( op ) =>
-  {
-    test.identical( _.strCount( op.output, 'user.name=userLogin' ), 1 );
-    test.identical( _.strCount( op.output, 'user.email=user@domain.com' ), 1 );
-    test.identical( _.strCount( op.output, 'url.https://userLogin@github.com.insteadof=https://github.com' ), 1 );
-    test.identical( _.strCount( op.output, 'url.https://userLogin@bitbucket.org.insteadof=https://bitbucket.org' ), 1 );
-    return null;
-  });
-
-  /* */
-
-  begin().then( () =>
-  {
-    test.case = 'switch several identities';
-    var identity = { name : 'user', login : 'userLogin', email : 'user@domain.com', type : 'git' };
+    var identity = { name : 'user2', login : 'userLogin2', email : 'user2@domain.com', type : 'git' };
     _.identity.identityNew({ profileDir, identity });
-    var identity = { name : 'user2', type : 'super', identities : { user : true } };
+    var identity = { name : 'user3', type : 'super', identities : { user : false, user2 : true } };
     _.identity.identityNew({ profileDir, identity });
     var files = a.find( userProfileDir );
     test.identical( files, [ '.', './config.yaml' ] );
     var config = _.censor.configRead({ profileDir });
     test.identical( config.identity.user, { login : 'userLogin', type : 'git', email : 'user@domain.com' } );
-    test.identical( config.identity.user2, { login : 'userLogin2', type : 'super', email : 'user2@domain.com' } );
+    test.identical( config.identity.user2, { login : 'userLogin2', email : 'user2@domain.com', type : 'git' } );
+    test.identical( config.identity.user3, { type : 'super', identities : { user : false, user2 : true } } );
     test.identical( config.identity[ '_previous.git' ], undefined );
 
     var got = _.identity.identityUse({ profileDir, type : 'git', selector : 'user' });
@@ -1477,16 +1480,18 @@ module.exports = onIdentity;`;
     test.identical( files, [ '.', './config.yaml' ] );
     var config = _.censor.configRead({ profileDir });
     test.identical( config.identity.user, { login : 'userLogin', type : 'git', email : 'user@domain.com' } );
-    test.identical( config.identity.user2, { login : 'userLogin2', type : 'super', email : 'user2@domain.com' } );
+    test.identical( config.identity.user2, { login : 'userLogin2', email : 'user2@domain.com', type : 'git' } );
+    test.identical( config.identity.user3, { type : 'super', identities : { user : false, user2 : true } } );
     test.identical( config.identity[ '_previous.git' ], undefined );
 
-    var got = _.identity.identityUse({ profileDir, type : 'git', selector : 'user2' });
+    var got = _.identity.identityUse({ profileDir, type : 'git', selector : 'user3' });
     test.identical( got, undefined );
     var files = a.find( userProfileDir );
     test.identical( files, [ '.', './config.yaml' ] );
     var config = _.censor.configRead({ profileDir });
     test.identical( config.identity.user, { login : 'userLogin', type : 'git', email : 'user@domain.com' } );
-    test.identical( config.identity.user2, { login : 'userLogin2', type : 'super', email : 'user2@domain.com' } );
+    test.identical( config.identity.user2, { login : 'userLogin2', email : 'user2@domain.com', type : 'git' } );
+    test.identical( config.identity.user3, { type : 'super', identities : { user : false, user2 : true } } );
     var exp = { 'git.login' : 'userLogin', 'type' : 'git', 'git.email' : 'user@domain.com' };
     test.identical( config.identity[ '_previous.git' ], exp );
     _.censor.profileDel( profileDir );
