@@ -131,39 +131,57 @@ function identityNew( o )
   _.routine.options( identityNew, o );
   _.assert( _.map.is( o.identity ) );
   _.assert( _.str.defined( o.identity.name ), 'Expects field {-o.identity.name-}.' );
+  _.assert( _.set.hasKey( self.IdentityTypes, o.identity.type ) || o.identity.type === 'super' );
 
-  const loginKey = o.identity.type === 'general' || o.identity.type === null ? 'login' : `${ o.identity.type }.login`;
-  if( loginKey in o.identity )
+  if( o.identity.type === 'super' )
   {
-    const msg = `Expects defined field {-o.identity[ '${ loginKey }' ]-} or {-o.identity.login-}.`;
-    _.assert( _.str.defined( o.identity[ loginKey ] ), msg );
+    _.assert( 'identities' in o.identity );
   }
   else
   {
-    _.assert( _.str.defined( o.identity.login ), 'Expects field {-o.identity.login-}.' );
+    const msg = `Expects defined field {-o.identity[ '${ o.identity.type }.login' ]-} or {-o.identity.login-}.`;
+    _.assert( _.str.defined( o.identity[ 'login' ] ) || _.str.defined( o.identity[ `${ o.identity.type }.login` ] ), msg );
   }
 
   _.censor._configNameMapFromDefaults( o );
 
   const o2 = _.mapOnly_( null, o, self.identityGet.defaults );
   o2.selector = o.identity.name;
-  const identity = self.identityGet( o2 );
+
   if( !o.force )
-  if( identity !== undefined )
   {
-    const errMsg = `Identity ${ o.identity.name } already exists. `
-    + `Please, delete existed identity or create new identity with different name`;
-    throw _.err( errMsg );
+    const identity = self.identityGet( o2 );
+    if( identity !== undefined )
+    {
+      const errMsg = `Identity ${ o.identity.name } already exists. `
+      + `Please, delete existed identity or create new identity with different name`;
+      throw _.err( errMsg );
+    }
   }
 
-  if( o.identity.type === undefined || o.identity.type === null )
+  if( o.identity.type === 'super' && !_.aux.is( o.identity.identities ) )
   {
-    if( !identity || ( identity && !identity.type ) )
-    o.identity.type = 'general';
+    const identities = Object.create( null );
+
+    if( _.str.is( o.identity.identities ) )
+    {
+      identities[ o.identity.identities ] = true;
+    }
+    else if( _.array.is( o.identity.identities ) )
+    {
+      for( let i = 0 ; i < o.identity.identities.length ; i++ )
+      {
+        _.assert( _.str.defined( o.identity.identities[ i ] ) );
+        identities[ o.identity.identities[ i ] ] = true;
+      }
+    }
     else
-    o.identity.type = identity.type;
+    {
+      _.assert( false, 'Expects identities list as string, array or map.' );
+    }
+
+    o.identity.identities = identities;
   }
-  _.assert( _.set.hasKey( self.IdentityTypes, o.identity.type ) || o.identity.type === 'general' );
 
   o.selector = o.identity.name;
   delete o.identity.name;
