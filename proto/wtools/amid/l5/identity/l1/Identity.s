@@ -412,7 +412,7 @@ function identityUse( o )
       {
         o4.selector = key;
         const identity2 = _.identity.identityGet( o4 );
-        identityUpdateByType( o.type );
+        identityUpdateByType( identity2.type );
         o.identity = identity2;
         _.censor.profileHookCallWithIdentity( _.mapOnly_( null, o, _.censor.profileHookCallWithIdentity.defaults ) );
       }
