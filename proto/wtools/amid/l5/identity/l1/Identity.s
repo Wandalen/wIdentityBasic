@@ -66,7 +66,7 @@ function identityGet( o )
   _.assert( _.str.is( o.selector ) );
   o.selector = `identity/${ o.selector }`;
 
-  return _.censor.configGet( o );
+  return _.censor.configGet( _.aux.extend( null, o ) );
 }
 
 identityGet.defaults =
