@@ -1846,14 +1846,14 @@ function identitiesEquivalentAre( test )
   /* */
 
   test.case = 'compare equivalent identities';
-  var identity1 = { name : 'user', login : 'userLogin', type : 'general' };
+  var identity1 = { name : 'user', login : 'userLogin', type : 'super' };
   var identity2 = { name : 'user', login : 'userLogin', type : 'git' };
   var got = _.identity.identitiesEquivalentAre({ profileDir, identity1, identity2, type : 'git' });
   test.identical( got, true );
   _.censor.profileDel( profileDir );
 
   test.case = 'compare not equivalent identities';
-  var identity1 = { name : 'user', login : 'userLogin', type : 'general' };
+  var identity1 = { name : 'user', login : 'userLogin', type : 'super' };
   var identity2 = { name : 'user2', login : 'userLogin', type : 'git' };
   var got = _.identity.identitiesEquivalentAre({ profileDir, identity1, identity2, type : 'git' });
   test.identical( got, false );
