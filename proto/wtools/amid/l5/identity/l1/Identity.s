@@ -570,7 +570,7 @@ function identityResolveDefaultMaybe( o )
 
   _.routine.options( identityResolveDefaultMaybe, o );
 
-  _.assert( _.set.hasKey( self.IdentityTypes, o.type ) || o.type === 'general' || o.type === null );
+  _.assert( _.set.hasKey( self.IdentityTypes, o.type ) || o.type === 'super' || o.type === null );
 
   _.censor._configNameMapFromDefaults( o );
 
@@ -593,7 +593,7 @@ function identityResolveDefaultMaybe( o )
   if( o.type )
   {
     if( identity )
-    _.assert( identity.type === o.type || identity.type === 'general' );
+    _.assert( identity.type === o.type || identity.type === 'super' );
     else
     identity = _.any( identitiesMap, ( e ) => e.type === o.type ? e : undefined );
   }
