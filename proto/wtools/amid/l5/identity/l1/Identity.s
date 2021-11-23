@@ -638,8 +638,8 @@ function identitiesEquivalentAre( o )
     if
     (
       ( o.identity1.type !== o.identity2.type )
-      && o.identity1.type !== 'general'
-      && o.identity2.type !== 'general'
+      && o.identity1.type !== 'super'
+      && o.identity2.type !== 'super'
     )
     return false;
 
