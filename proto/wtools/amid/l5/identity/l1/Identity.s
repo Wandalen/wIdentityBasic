@@ -502,12 +502,12 @@ function identityResolveDefaultMaybe( o )
 {
   const self = this;
 
+  _.assert( arguments.length <= 1, 'Expects no arguments or single options map {-o-}.' );
+
   if( arguments.length === 0 )
   o = Object.create( null );
   else if( _.str.is( o ) )
   o = { profileDir : o };
-  else
-  _.assert( arguments.length === 1, 'Expects no arguments or single options map {-o-}.' );
 
   _.routine.options( identityResolveDefaultMaybe, o );
 
@@ -518,6 +518,9 @@ function identityResolveDefaultMaybe( o )
   const o2 = _.mapOnly_( null, o, self.identityGet.defaults );
   o2.selector = '';
   const identitiesMap = self.identityGet( o2 );
+
+  if( !identitiesMap )
+  return null;
 
   /* */
 
