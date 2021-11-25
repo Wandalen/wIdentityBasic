@@ -1716,6 +1716,12 @@ function identityResolveDefaultMaybe( test )
 
   /* */
 
+  test.case = 'resolve identity, no config';
+  _.censor.profileDel( profileDir );
+  var got = _.identity.identityResolveDefaultMaybe( profileDir );
+  test.identical( got, null );
+  _.censor.profileDel( profileDir );
+
   test.case = 'resolve no identity';
   _.identity.identityNew({ profileDir, identity : _.map.extend( null, serviceIdentity1 ) });
   _.identity.identityNew({ profileDir, identity : _.map.extend( null, typeIdentity ) });
