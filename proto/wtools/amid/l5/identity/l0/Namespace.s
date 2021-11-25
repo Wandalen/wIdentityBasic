@@ -55,7 +55,7 @@ function profileHookGet( o )
 
   const o2 = _.mapOnly_( null, o, self.profileHookPathMake.defaults );
 
-  if( o.type === 'general' )
+  if( o.type === 'super' )
   {
     const result = [];
     for( let type in hooksMap )
@@ -102,7 +102,7 @@ function profileHookSet( o )
 
   const o2 = _.mapOnly_( null, o, self.profileHookPathMake.defaults );
 
-  if( o.type === 'general' )
+  if( o.type === 'super' )
   {
     let types = [ 'git', 'npm', 'rust', 'ssh' ];
     for( let i = 0 ; i < types.length ; i++ )
@@ -255,14 +255,6 @@ function _profileSshHook( identity, options )
     inputMirroring : 0,
     sync : 1,
   });
-
-  if( options.logger )
-  {
-    let msg = `All ssh-identies cleared from cache.`
-    + `\nPlease, add key of identity "${ identity.login }" to ssh-agent by command : "ssh-add [path to key]".`
-    + `\nExample : "ssh-add ~/.ssh/id_rsa"`
-    options.logger.log( msg );
-  }
 }
 
 //
@@ -273,24 +265,12 @@ function profileHookCallWithIdentity( o )
 
   _.assert( arguments.length === 1, 'Expects exactly one argument' );
   _.routine.options( profileHookCallWithIdentity, o );
-
-  _.assert( _.set.hasKey( _.identity.IdentityTypes, o.type ) || o.type === 'general' ); /* qqq2 : for Dmytro : refactor */
-  _.assert( !_.path.isGlob( o.selector ) );
+  _.assert( _.aux.is( o.identity ), 'Expects identity {-o.identity-}.' );
 
   o.logger = _.logger.relativeMaybe( o.logger, -3 );
   self._profileNameMapFromDefaults( o );
 
-  const o2 = _.mapOnly_( null, o, _.identity.identityGet.defaults );
-  const identity = _.identity.identityGet( o2 );
-  _.assert( _.map.is( identity ), `Selected no identity : ${ o.selector }. Please, improve selector.` );
-  _.assert
-  (
-    ( 'login' in identity || `${ o.type }.login` in identity ) && 'type' in identity,
-    `Selected ${ _.props.keys( identity ).length } identity(s). Please, improve selector.`
-  );
-  _.assert( identity.type === 'general' || identity.type === o.type );
-
-  const o3 = _.mapOnly_( null, o, self.profileHookPathMake.defaults );
+  const o2 = _.mapOnly_( null, o, self.profileHookPathMake.defaults );
   const hooksMap =
   {
     git : _profileGitHook,
@@ -299,28 +279,15 @@ function profileHookCallWithIdentity( o )
     ssh : _profileSshHook,
   };
 
-  if( o.type === 'general' )
-  {
-    for( let type in hooksMap )
-    hookResolve( type );
-  }
+  _.assert( o.identity.type in hooksMap, `Unknown type ${ o.identity.type }.` );
+
+  o2.type = o.identity.type;
+  let filePath = self.profileHookPathMake( o2 );
+
+  if( _.fileProvider.fileExists( filePath ) )
+  hookCall( filePath );
   else
-  {
-    hookResolve( o.type );
-  }
-
-  /* */
-
-  function hookResolve( type )
-  {
-    o3.type = type;
-    let filePath = self.profileHookPathMake( o3 );
-
-    if( _.fileProvider.fileExists( filePath ) )
-    hookCall( filePath );
-    else
-    hooksMap[ type ]( identity, o );
-  }
+  hooksMap[ o.identity.type ]( o.identity, o );
 
   /* */
 
@@ -330,7 +297,7 @@ function profileHookCallWithIdentity( o )
     const routine = require( filePath );
     _.assert( _.routine.is( routine ) );
 
-    let result = routine.call( _, identity, o );
+    let result = routine.call( _, o.identity, o );
     if( _.promiseIs( result ) )
     result = _.Consequence.From( result );
     if( _.consequenceIs( result ) )
@@ -344,8 +311,7 @@ function profileHookCallWithIdentity( o )
 profileHookCallWithIdentity.defaults =
 {
   ... _.censor.profileNameMapFrom.defaults,
-  selector : null,
-  type : null,
+  identity : null,
   logger : 2,
 };
 

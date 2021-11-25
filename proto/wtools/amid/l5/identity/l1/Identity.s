@@ -1,4 +1,4 @@
-( function _Namespace_s_()
+( function _Identity_s_()
 {
 
 'use strict';
@@ -28,7 +28,7 @@ function identityCopy( o )
   _.assert( _.map.is( identity ), `Selected no identity : ${ o.identitySrcName }. Please, improve selector.` );
   _.assert
   (
-    ( 'login' in identity || `${ identity.type }.login` in identity ) && 'type' in identity,
+    ( 'login' in identity || `${ identity.type }.login` in identity || 'identities' in identity ) && 'type' in identity,
     `Selected ${ _.props.keys( identity ).length } identity(s). Please, improve selector.`
   );
 
@@ -66,7 +66,7 @@ function identityGet( o )
   _.assert( _.str.is( o.selector ) );
   o.selector = `identity/${ o.selector }`;
 
-  return _.censor.configGet( o );
+  return _.censor.configGet( _.aux.extend( null, o ) );
 }
 
 identityGet.defaults =
@@ -131,39 +131,57 @@ function identityNew( o )
   _.routine.options( identityNew, o );
   _.assert( _.map.is( o.identity ) );
   _.assert( _.str.defined( o.identity.name ), 'Expects field {-o.identity.name-}.' );
+  _.assert( _.set.hasKey( self.IdentityTypes, o.identity.type ) || o.identity.type === 'super' );
 
-  const loginKey = o.identity.type === 'general' || o.identity.type === null ? 'login' : `${ o.identity.type }.login`;
-  if( loginKey in o.identity )
+  if( o.identity.type === 'super' )
   {
-    const msg = `Expects defined field {-o.identity[ '${ loginKey }' ]-} or {-o.identity.login-}.`;
-    _.assert( _.str.defined( o.identity[ loginKey ] ), msg );
+    _.assert( 'identities' in o.identity );
   }
   else
   {
-    _.assert( _.str.defined( o.identity.login ), 'Expects field {-o.identity.login-}.' );
+    const msg = `Expects defined field {-o.identity[ '${ o.identity.type }.login' ]-} or {-o.identity.login-}.`;
+    _.assert( _.str.defined( o.identity[ 'login' ] ) || _.str.defined( o.identity[ `${ o.identity.type }.login` ] ), msg );
   }
 
   _.censor._configNameMapFromDefaults( o );
 
   const o2 = _.mapOnly_( null, o, self.identityGet.defaults );
   o2.selector = o.identity.name;
-  const identity = self.identityGet( o2 );
+
   if( !o.force )
-  if( identity !== undefined )
   {
-    const errMsg = `Identity ${ o.identity.name } already exists. `
-    + `Please, delete existed identity or create new identity with different name`;
-    throw _.err( errMsg );
+    const identity = self.identityGet( o2 );
+    if( identity !== undefined )
+    {
+      const errMsg = `Identity ${ o.identity.name } already exists. `
+      + `Please, delete existed identity or create new identity with different name`;
+      throw _.err( errMsg );
+    }
   }
 
-  if( o.identity.type === undefined || o.identity.type === null )
+  if( o.identity.type === 'super' && !_.aux.is( o.identity.identities ) )
   {
-    if( !identity || ( identity && !identity.type ) )
-    o.identity.type = 'general';
+    const identities = Object.create( null );
+
+    if( _.str.is( o.identity.identities ) )
+    {
+      identities[ o.identity.identities ] = true;
+    }
+    else if( _.array.is( o.identity.identities ) )
+    {
+      for( let i = 0 ; i < o.identity.identities.length ; i++ )
+      {
+        _.assert( _.str.defined( o.identity.identities[ i ] ) );
+        identities[ o.identity.identities[ i ] ] = true;
+      }
+    }
     else
-    o.identity.type = identity.type;
+    {
+      _.assert( false, 'Expects identities list as string, array or map.' );
+    }
+
+    o.identity.identities = identities;
   }
-  _.assert( _.set.hasKey( self.IdentityTypes, o.identity.type ) || o.identity.type === 'general' );
 
   o.selector = o.identity.name;
   delete o.identity.name;
@@ -328,13 +346,13 @@ function identityDel( o )
   if( identities )
   if( 'type' in identities )
   {
-    if( identities.type === 'ssh' || identities.type === 'general' )
+    if( identities.type === 'ssh' )
     deleteLocalSshKeys( identities );
   }
   else
   {
     for( let identityKey in identities )
-    if( identities[ identityKey ].type === 'ssh' || identities[ identityKey ].type === 'general' )
+    if( identities[ identityKey ].type === 'ssh' )
     deleteLocalSshKeys( identities[ identityKey ] );
   }
 
@@ -366,7 +384,7 @@ function identityUse( o )
   _.assert( arguments.length === 1, 'Expects exactly one argument' );
   _.routine.options( identityUse, o );
 
-  _.assert( _.set.hasKey( self.IdentityTypes, o.type ) || o.type === 'general' );
+  _.assert( _.set.hasKey( self.IdentityTypes, o.type ) || o.type === 'super' );
   _.assert( !_.path.isGlob( o.selector ) );
 
   _.censor._configNameMapFromDefaults( o );
@@ -376,24 +394,65 @@ function identityUse( o )
   _.assert( _.map.is( identity ), `Selected no identity : ${ o.identitySrcName }. Please, improve selector.` );
   _.assert
   (
-    ( 'login' in identity || `${ o.type }.login` in identity ) && 'type' in identity,
+    ( 'login' in identity || `${ o.type }.login` in identity || 'identities' in identity ) && 'type' in identity,
     `Selected ${ _.props.keys( identity ).length } identity(s). Please, improve selector.`
   );
-  _.assert( identity.type === 'general' || identity.type === o.type || o.type === null );
-
-  o.type = o.type || identity.type;
+  _.assert( identity.type === 'super' || identity.type === o.type );
 
   /* */
 
-  let o3 = _.mapOnly_( null, o, self.identityUpdate.defaults );
-  self.identityUpdate( _.map.extend( o3, { dst : `_previous.${ o.type }`, deleting : 1, throwing : 0, force : 1 } ) );
-  if( o.type === 'ssh' )
+  const o3 = _.mapOnly_( null, o, self.identityUpdate.defaults );
+  if( identity.type === 'super' )
   {
-    delete o3.dst;
-    self.identityUpdate( o3 );
+    if( o.type === 'super' )
+    {
+      const o4 = _.mapOnly_( null, o, self.identityGet.defaults );
+      for( let key in identity.identities )
+      if( identity.identities[ key ] )
+      {
+        o4.selector = key;
+        const identity2 = _.identity.identityGet( o4 );
+        identityUpdateByType( identity2.type );
+        o.identity = identity2;
+        _.censor.profileHookCallWithIdentity( _.mapOnly_( null, o, _.censor.profileHookCallWithIdentity.defaults ) );
+      }
+    }
+    else
+    {
+      const o4 = _.mapOnly_( null, o, self.identityGet.defaults );
+      for( let key in identity.identities )
+      if( identity.identities[ key ] )
+      {
+        o4.selector = key;
+        const identity2 = _.identity.identityGet( o4 );
+        if( identity2.type === o.type )
+        {
+          identityUpdateByType( o.type );
+          o.identity = identity2;
+          _.censor.profileHookCallWithIdentity( _.mapOnly_( null, o, _.censor.profileHookCallWithIdentity.defaults ) );
+          break;
+        }
+      }
+    }
+  }
+  else
+  {
+    identityUpdateByType( o.type );
+    o.identity = identity;
+    _.censor.profileHookCallWithIdentity( _.mapOnly_( null, o, _.censor.profileHookCallWithIdentity.defaults ) );
   }
 
-  _.censor.profileHookCallWithIdentity( _.mapOnly_( null, o, _.censor.profileHookCallWithIdentity.defaults ) );
+  /* */
+
+  function identityUpdateByType( type )
+  {
+    self.identityUpdate( _.map.extend( o3, { dst : `_previous.${ type }`, deleting : 1, throwing : 0, force : 1 } ) );
+    if( type === 'ssh' )
+    {
+      delete o3.dst;
+      self.identityUpdate( o3 );
+    }
+  }
 }
 
 identityUse.defaults =
@@ -511,7 +570,7 @@ function identityResolveDefaultMaybe( o )
 
   _.routine.options( identityResolveDefaultMaybe, o );
 
-  _.assert( _.set.hasKey( self.IdentityTypes, o.type ) || o.type === 'general' || o.type === null );
+  _.assert( _.set.hasKey( self.IdentityTypes, o.type ) || o.type === 'super' || o.type === null );
 
   _.censor._configNameMapFromDefaults( o );
 
@@ -537,7 +596,7 @@ function identityResolveDefaultMaybe( o )
   if( o.type )
   {
     if( identity )
-    _.assert( identity.type === o.type || identity.type === 'general' );
+    _.assert( identity.type === o.type || identity.type === 'super' );
     else
     identity = _.any( identitiesMap, ( e ) => e.type === o.type ? e : undefined );
   }
@@ -582,8 +641,8 @@ function identitiesEquivalentAre( o )
     if
     (
       ( o.identity1.type !== o.identity2.type )
-      && o.identity1.type !== 'general'
-      && o.identity2.type !== 'general'
+      && o.identity1.type !== 'super'
+      && o.identity2.type !== 'super'
     )
     return false;
 
