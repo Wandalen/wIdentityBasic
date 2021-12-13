@@ -683,7 +683,15 @@ identitiesEquivalentAre.defaults =
 // declare
 // --
 
-const IdentityTypes = _.set.make([ 'git', 'npm', 'rust', 'ssh' ]);
+const IdentityTypes = _.set.make
+([
+  'git',
+  'github',
+  'bitbucket',
+  'npm',
+  'cargo',
+  'ssh',
+]);
 
 //
 
