@@ -52,9 +52,9 @@ function profileHookPathMake( test )
   var exp = a.abs( a.path.dirUserHome(), _.censor.storageDir, profileDir, 'hook/NpmHook.js' );
   test.identical( got, exp );
 
-  test.case = 'type - rust';
-  var got = _.censor.profileHookPathMake({ profileDir, type : 'rust' });
-  var exp = a.abs( a.path.dirUserHome(), _.censor.storageDir, profileDir, 'hook/RustHook.js' );
+  test.case = 'type - cargo';
+  var got = _.censor.profileHookPathMake({ profileDir, type : 'cargo' });
+  var exp = a.abs( a.path.dirUserHome(), _.censor.storageDir, profileDir, 'hook/CargoHook.js' );
   test.identical( got, exp );
 
   /* - */
@@ -132,9 +132,9 @@ function profileHookGet( test )
     '.',
     './config.yaml',
     './hook',
+    './hook/CargoHook.js',
     './hook/GitHook.js',
     './hook/NpmHook.js',
-    './hook/RustHook.js',
     './hook/SshHook.js',
   ];
   test.identical( files, exp );
@@ -728,9 +728,9 @@ function profileHookSet( test )
     '.',
     './config.yaml',
     './hook',
+    './hook/CargoHook.js',
     './hook/GitHook.js',
     './hook/NpmHook.js',
-    './hook/RustHook.js',
     './hook/SshHook.js',
   ];
   test.identical( files, exp );

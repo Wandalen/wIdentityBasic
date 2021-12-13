@@ -1766,7 +1766,7 @@ function identityResolveDefaultMaybe( test )
   var defaultIdentity = { name : 'user', login : 'userLogin', type : 'super', identities : {}, default : true };
   var serviceIdentity1 = { name : 'user21', login : 'userLogin', type : 'git', services : [ 'github.com', 'gitlab.com' ] };
   var serviceIdentity2 = { name : 'user22', login : 'userLogin', type : 'npm', services : [ 'npmjs.org' ] };
-  var typeIdentity = { name : 'user3', login : 'userLogin', type : 'rust' };
+  var typeIdentity = { name : 'user3', login : 'userLogin', type : 'cargo' };
 
   /* */
 
