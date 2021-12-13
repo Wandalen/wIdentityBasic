@@ -569,7 +569,6 @@ function identityResolveDefaultMaybe( o )
   o = { profileDir : o };
 
   _.routine.options( identityResolveDefaultMaybe, o );
-
   _.assert( _.set.hasKey( self.IdentityTypes, o.type ) || o.type === 'super' || o.type === null );
 
   _.censor._configNameMapFromDefaults( o );
@@ -583,25 +582,64 @@ function identityResolveDefaultMaybe( o )
 
   /* */
 
-  let identity = _.any( identitiesMap, ( e ) => e.default ? e : undefined );
+
+  const identities = [];
+  _.each( identitiesMap, ( e ) => e.default ? identities.push( e ) : undefined );
 
   if( o.service )
   {
-    if( identity )
-    _.assert( !!identity.services || _.longHas( identity.services, o.service ) );
+    if( identities.length > 0 )
+    {
+      for( let i = identities.length - 1 ; i >= 0 ; i-- )
+      if( ( identities[ i ].services && !_.longHas( identities[ i ].services, o.service ) ) || !identities[ i ].services )
+      identities.splice( i, 1 );
+    }
     else
-    identity = _.any( identitiesMap, ( e ) => ( !!e.services && _.longHas( e.services, o.service ) ) ? e : undefined );
+    {
+      _.each( identitiesMap, ( e ) => ( !!e.services && _.longHas( e.services, o.service ) ) ? identities.push( e ) : undefined );
+    }
   }
 
   if( o.type )
   {
-    if( identity )
-    _.assert( identity.type === o.type || identity.type === 'super' );
+    if( identities.length > 0 )
+    for( let i = identities.length - 1 ; i >= 0 ; i-- )
+    {
+      if( identities[ i ].type === 'super' )
+      {
+        for( let key in identities[ i ].identities )
+        if( identitiesMap[ key ] && identitiesMap[ key ].type === o.type )
+        {
+          identities[ i ] = identitiesMap[ key ];
+          break;
+        }
+        else
+        {
+          delete identities[ i ].identities[ key ];
+        }
+        if( identities[ i ].identities && _.map.keys( identities[ i ].identities ).length === 0 )
+        identities.splice( i, 1 )
+      }
+      else
+      {
+        if( identities[ i ].type !== o.type )
+        identities.splice( i, 1 );
+      }
+    }
     else
-    identity = _.any( identitiesMap, ( e ) => e.type === o.type ? e : undefined );
+    {
+      _.each( identitiesMap, ( e ) => e.type === o.type ? identities.push( e ): undefined );
+    }
   }
 
-  return identity;
+  _.arrayRemoveDuplicates( identities );
+  _.assert
+  (
+    identities.length <= 1,
+    () => `Got ${ identities.length } identities. Please, improve filters {-type-} and {-service-} to select single identity`
+  );
+
+  return identities[ 0 ];
 }
 
 identityResolveDefaultMaybe.defaults =
