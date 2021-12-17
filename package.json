@@ -1,6 +1,6 @@
 {
   "name": "widentitybasic",
-  "version": "0.2.172",
+  "version": "0.2.173",
   "description": "Tool to menage profiles for different utilities.",
   "author": "Kostiantyn Wandalen <wandalen@obox.systems>",
   "contributors": [
@@ -27,10 +27,10 @@
     "url": "https://github.com/Wandalen/wIdentityBasic/issues"
   },
   "dependencies": {
-    "wcensorbasic": "alpha"
+    "wcensorbasic": "delta"
   },
   "devDependencies": {
-    "wTesting": "alpha",
+    "wTesting": "delta",
     "eslint": "7.32.0"
   },
   "keywords": [
