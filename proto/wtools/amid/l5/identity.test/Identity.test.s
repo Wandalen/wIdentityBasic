@@ -1763,10 +1763,11 @@ function identityUpdate( test )
 function identityResolveDefaultMaybe( test )
 {
   const profileDir = `test-${ _.intRandom( 1000000 ) }`;
-  var defaultIdentity = { name : 'user', login : 'userLogin', type : 'super', identities : {}, default : true };
-  var serviceIdentity1 = { name : 'user21', login : 'userLogin', type : 'git', services : [ 'github.com', 'gitlab.com' ] };
-  var serviceIdentity2 = { name : 'user22', login : 'userLogin', type : 'npm', services : [ 'npmjs.org' ] };
-  var typeIdentity = { name : 'user3', login : 'userLogin', type : 'rust' };
+  const identities = { user21 : true, user22 : false, user3 : true };
+  const superIdentity = { name : 'user', login : 'userLogin', type : 'super', identities, default : true };
+  const serviceIdentity1 = { name : 'user21', login : 'userLogin', type : 'git', services : [ 'github.com', 'gitlab.com' ] };
+  const serviceIdentity2 = { name : 'user22', login : 'userLogin', type : 'npm', services : [ 'npmjs.org' ] };
+  const typeIdentity = { name : 'user3', login : 'userLogin', type : 'cargo', default : 1 };
 
   /* */
 
@@ -1778,31 +1779,34 @@ function identityResolveDefaultMaybe( test )
 
   test.case = 'resolve no identity';
   _.identity.identityNew({ profileDir, identity : _.map.extend( null, serviceIdentity1 ) });
-  _.identity.identityNew({ profileDir, identity : _.map.extend( null, typeIdentity ) });
+  _.identity.identityNew({ profileDir, identity : _.map.extend( null, serviceIdentity2 ) });
   var got = _.identity.identityResolveDefaultMaybe( profileDir );
   test.identical( got, undefined );
   _.censor.profileDel( profileDir );
 
-  test.case = 'several identities with default identity, search exactly default identity by string';
-  _.identity.identityNew({ profileDir, identity : _.map.extend( null, defaultIdentity ) });
+  /* */
+
+  test.case = 'several identities, single with default, search exactly default identity by string';
+  _.identity.identityNew({ profileDir, identity : _.map.extend( null, superIdentity ) });
   _.identity.identityNew({ profileDir, identity : _.map.extend( null, serviceIdentity1 ) });
-  _.identity.identityNew({ profileDir, identity : _.map.extend( null, typeIdentity ) });
+  _.identity.identityNew({ profileDir, identity : _.map.extend( null, serviceIdentity2 ) });
   var got = _.identity.identityResolveDefaultMaybe( profileDir );
-  test.identical( got, _.mapBut_( null, defaultIdentity, [ 'name' ] ) );
+  test.identical( got, _.mapBut_( null, superIdentity, [ 'name' ] ) );
   _.censor.profileDel( profileDir );
 
-  test.case = 'several identities with default identity, search exactly default identity, map';
-  _.identity.identityNew({ profileDir, identity : _.map.extend( null, defaultIdentity ) });
+  test.case = 'several identities, single with default, search exactly default identity by map';
+  _.identity.identityNew({ profileDir, identity : _.map.extend( null, superIdentity ) });
   _.identity.identityNew({ profileDir, identity : _.map.extend( null, serviceIdentity1 ) });
-  _.identity.identityNew({ profileDir, identity : _.map.extend( null, typeIdentity ) });
+  _.identity.identityNew({ profileDir, identity : _.map.extend( null, serviceIdentity2 ) });
   var got = _.identity.identityResolveDefaultMaybe( { profileDir } );
-  test.identical( got, _.mapBut_( null, defaultIdentity, [ 'name' ] ) );
+  test.identical( got, _.mapBut_( null, superIdentity, [ 'name' ] ) );
   _.censor.profileDel( profileDir );
+
+  /* */
 
   test.case = 'several identities without default identity, search by service';
   _.identity.identityNew({ profileDir, identity : _.map.extend( null, serviceIdentity1 ) });
   _.identity.identityNew({ profileDir, identity : _.map.extend( null, serviceIdentity2 ) });
-  _.identity.identityNew({ profileDir, identity : _.map.extend( null, typeIdentity ) });
   var got = _.identity.identityResolveDefaultMaybe( { profileDir, service : 'github.com' } );
   test.identical( got, _.mapBut_( null, serviceIdentity1, [ 'name' ] ) );
   var got = _.identity.identityResolveDefaultMaybe( { profileDir, service : 'gitlab.com' } );
@@ -1811,12 +1815,21 @@ function identityResolveDefaultMaybe( test )
   test.identical( got, _.mapBut_( null, serviceIdentity2, [ 'name' ] ) );
   _.censor.profileDel( profileDir );
 
-  test.case = 'several identities without default identity, search by type';
+  test.case = 'several identities, with default identity, search by type';
   _.identity.identityNew({ profileDir, identity : _.map.extend( null, serviceIdentity1 ) });
-  _.identity.identityNew({ profileDir, identity : _.map.extend( null, serviceIdentity2 ) });
+  _.identity.identityNew({ profileDir, identity : _.map.extend( null, serviceIdentity2, { default : true } ) });
   _.identity.identityNew({ profileDir, identity : _.map.extend( null, typeIdentity ) });
   var got = _.identity.identityResolveDefaultMaybe( { profileDir, type : 'npm' } );
-  test.identical( got, _.mapBut_( null, serviceIdentity2, [ 'name' ] ) );
+  test.identical( _.mapBut_( null, got, [ 'default' ] ), _.mapBut_( null, serviceIdentity2, [ 'name' ] ) );
+  _.censor.profileDel( profileDir );
+
+  test.case = 'several identities, with default identity, duplicated, search by type';
+  _.identity.identityNew({ profileDir, identity : _.map.extend( null, superIdentity ) });
+  _.identity.identityNew({ profileDir, identity : _.map.extend( null, serviceIdentity1 ) });
+  _.identity.identityNew({ profileDir, identity : _.map.extend( null, serviceIdentity2, { default : true } ) });
+  _.identity.identityNew({ profileDir, identity : _.map.extend( null, typeIdentity ) });
+  var got = _.identity.identityResolveDefaultMaybe( { profileDir, type : 'npm' } );
+  test.identical( _.mapBut_( null, got, [ 'default' ] ), _.mapBut_( null, serviceIdentity2, [ 'name' ] ) );
   _.censor.profileDel( profileDir );
 
   /* - */
@@ -1835,11 +1848,6 @@ function identityResolveDefaultMaybe( test )
 
   test.case = 'wrong value of o.type';
   test.shouldThrowErrorSync( () => _.identity.identityResolveDefaultMaybe({ profileDir, type : 'wrong' }) );
-
-  test.case = 'resolve identity, but combination of o.type and o.service is wrong';
-  _.identity.identityNew({ profileDir, identity : _.map.extend( null, serviceIdentity1 ) });
-  test.shouldThrowErrorSync( () => _.identity.identityResolveDefaultMaybe({ profileDir, service : 'github.com', type : 'npm' }) );
-  _.censor.profileDel( profileDir );
 }
 
 //

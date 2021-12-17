@@ -49,7 +49,7 @@ function profileHookGet( o )
   {
     git : _profileGitHook,
     npm : _profileNpmHook,
-    rust : _profileRustHook,
+    cargo : _profileCargoHook,
     ssh : _profileSshHook,
   };
 
@@ -104,7 +104,7 @@ function profileHookSet( o )
 
   if( o.type === 'super' )
   {
-    let types = [ 'git', 'npm', 'rust', 'ssh' ];
+    let types = [ 'git', 'npm', 'cargo', 'ssh' ];
     for( let i = 0 ; i < types.length ; i++ )
     hookMake( o.hook, types[ i ] );
   }
@@ -226,7 +226,7 @@ function _profileNpmHook( identity, options )
 
 //
 
-function _profileRustHook( identity, options )
+function _profileCargoHook( identity, options )
 {
 }
 
@@ -275,7 +275,7 @@ function profileHookCallWithIdentity( o )
   {
     git : _profileGitHook,
     npm : _profileNpmHook,
-    rust : _profileRustHook,
+    cargo : _profileCargoHook,
     ssh : _profileSshHook,
   };
 
